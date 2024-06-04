@@ -12,17 +12,23 @@ declare global {
    * 分页查询参数
    */
   interface PageQuery {
-    pageNum: number;
-    pageSize: number;
+    offset: number;
+    limit: number;
+    sort?: string;
+    order?: string;
+    beginCreateTime?: date;
+    endCreateTime?: date;
+    beginModifyTime?: date;
+    endModifyTime?: date;
   }
 
   /**
    * 分页响应对象
    */
   interface PageResult<T> {
-    /** 数据列表 */
-    list: T;
-    /** 总数 */
+    records: T;
+    current: number;
+    size: number;
     total: number;
   }
 

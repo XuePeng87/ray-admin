@@ -1,147 +1,91 @@
 import request from "@/utils/request";
 import {
-  DictTypeQuery,
-  DictTypePageResult,
-  DictTypeForm,
-  DictQuery,
-  DictForm,
-  DictPageResult,
+  DictQueryRequest,
+  DictPageResponse,
+  DictResponse,
+  DictRequest,
+  DictItemQueryRequest,
+  DictItemResponse,
+  DictItemPageResponse,
+  DictItemRequest,
 } from "./model";
 
 class DictAPI {
-  /**
-   * 字典类型分页列表
-   *
-   * @param queryParams
-   */
-  static getDictTypePage(queryParams: DictTypeQuery) {
-    return request<any, DictTypePageResult>({
-      url: "/api/v1/dict/types/page",
+  static getDictPage(queryParams: DictQueryRequest) {
+    return request<any, DictPageResponse>({
+      url: "/v1/dicts/v1/page",
       method: "get",
       params: queryParams,
     });
   }
 
-  /**
-   * 字典类型表单数据
-   *
-   * @param id
-   */
-  static getDictTypeForm(id: number) {
-    return request<any, ResponseData<DictTypeForm>>({
-      url: "/api/v1/dict/types/" + id + "/form",
+  static getDictByCode(code: string) {
+    return request<any, ResponseData<DictResponse>>({
+      url: "/v1/dicts/v1/" + code,
       method: "get",
     });
   }
 
-  /**
-   * 新增字典类型
-   *
-   * @param data
-   */
-  static addDictType(data: DictTypeForm) {
+  static createDict(data: DictRequest) {
     return request({
-      url: "/api/v1/dict/types",
+      url: "/v1/dicts/v1",
       method: "post",
       data: data,
     });
   }
 
-  /**
-   * 修改字典类型
-   *
-   * @param id
-   * @param data
-   */
-  static updateDictType(id: number, data: DictTypeForm) {
+  static updateDict(code: string, data: DictRequest) {
     return request({
-      url: "/api/v1/dict/types/" + id,
+      url: "/v1/dicts/v1/" + code,
       method: "put",
       data: data,
     });
   }
 
-  /**
-   * 删除字典类型
-   */
-  static deleteDictTypes(ids: string) {
+  static deleteDictByCodes(codes: string[]) {
     return request({
-      url: "/api/v1/dict/types/" + ids,
+      url: "/v1/dicts/v1",
       method: "delete",
+      data: codes,
     });
   }
 
-  /**
-   * 获取字典类型的数据项
-   *
-   * @param typeCode 字典类型编码
-   */
-  static getDictOptions(typeCode: string) {
-    return request<any, OptionType[]>({
-      url: "/api/v1/dict/" + typeCode + "/options",
-      method: "get",
-    });
-  }
-
-  /**
-   * 字典分页列表
-   */
-  static getDictPage(queryParams: DictQuery) {
-    return request<any, DictPageResult>({
-      url: "/api/v1/dict/page",
+  static getDictItemPage(queryParams: DictItemQueryRequest) {
+    return request<any, DictItemPageResponse>({
+      url: "/v1/dict-items/v1/page",
       method: "get",
       params: queryParams,
     });
   }
 
-  /**
-   * 获取字典表单数据
-   *
-   * @param id
-   */
-  static getDictFormData(id: number) {
-    return request<any, DictForm>({
-      url: "/api/v1/dict/" + id + "/form",
+  static getDictItemByCode(code: string) {
+    return request<any, DictItemPageResponse>({
+      url: "/v1/dict-items/v1/" + code,
       method: "get",
     });
   }
 
-  /**
-   * 新增字典
-   *
-   * @param data
-   */
-  static addDict(data: DictForm) {
+  static createDictItem(data: DictItemRequest) {
     return request({
-      url: "/api/v1/dict",
+      url: "/v1/dict-items/v1",
       method: "post",
       data: data,
     });
   }
 
-  /**
-   * 修改字典项
-   *
-   * @param id
-   * @param data
-   */
-  static updateDict(id: number, data: DictForm) {
+  static updateDictItem(code: string, data: DictItemRequest) {
     return request({
-      url: "/api/v1/dict/" + id,
+      url: "/v1/dict-items/v1/" + code,
       method: "put",
       data: data,
     });
   }
 
-  /**
-   * 删除字典
-   *
-   * @param ids 字典项ID，多个以英文逗号(,)分割
-   */
-  static deleteDictByIds(ids: string) {
+  static deleteDictItemByCodes(codes: string[]) {
     return request({
-      url: "/api/v1/dict/" + ids,
+      url: "/v1/dict-items/v1",
       method: "delete",
+      data: codes,
     });
   }
 }
