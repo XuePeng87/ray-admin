@@ -2,24 +2,12 @@
   <div class="app-container">
     <div class="search-container">
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-        <el-form-item label="关键字" prop="keywords">
+        <el-form-item label="关键字" prop="name">
           <el-input
-            v-model="queryParams.keywords"
+            v-model="queryParams.name"
             placeholder="部门名称"
             @keyup.enter="handleQuery"
           />
-        </el-form-item>
-
-        <el-form-item label="部门状态" prop="status">
-          <el-select
-            v-model="queryParams.status"
-            placeholder="全部"
-            clearable
-            class="!w-[100px]"
-          >
-            <el-option :value="1" label="正常" />
-            <el-option :value="0" label="禁用" />
-          </el-select>
         </el-form-item>
         <el-form-item>
           <el-button class="filter-item" type="primary" @click="handleQuery">
@@ -33,16 +21,12 @@
 
     <el-card shadow="never" class="table-container">
       <template #header>
-        <el-button
-          v-hasPerm="['sys:dept:add']"
-          type="success"
-          @click="openDialog(0, undefined)"
+        <el-button type="success" @click="openDialog('0', undefined)"
           ><i-ep-plus />新增</el-button
         >
         <el-button
-          v-hasPerm="['sys:dept:delete']"
           type="danger"
-          :disabled="ids.length === 0"
+          :disabled="codes.length === 0"
           @click="handleDelete()"
           ><i-ep-delete />删除
         </el-button>
@@ -51,9 +35,8 @@
       <el-table
         v-loading="loading"
         :data="deptList"
-        row-key="id"
+        row-key="code"
         default-expand-all
-        :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" align="center" />
@@ -65,32 +48,29 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="sort" label="排序" width="100" />
+        <el-table-column prop="sequence" label="排序" width="100" />
 
         <el-table-column label="操作" fixed="right" align="left" width="200">
           <template #default="scope">
             <el-button
-              v-hasPerm="['sys:dept:add']"
               type="primary"
               link
               size="small"
-              @click.stop="openDialog(scope.row.id, undefined)"
+              @click.stop="openDialog(scope.row.code, undefined)"
               ><i-ep-plus />新增
             </el-button>
             <el-button
-              v-hasPerm="['sys:dept:edit']"
               type="primary"
               link
               size="small"
-              @click.stop="openDialog(scope.row.parentId, scope.row.id)"
+              @click.stop="openDialog(scope.row.parentCode, scope.row.code)"
               ><i-ep-edit />编辑
             </el-button>
             <el-button
-              v-hasPerm="['sys:dept:delete']"
               type="primary"
               link
               size="small"
-              @click.stop="handleDelete(scope.row.id)"
+              @click.stop="handleDelete(scope.row.code)"
             >
               <i-ep-delete />删除
             </el-button>
@@ -111,22 +91,23 @@
         :rules="rules"
         label-width="80px"
       >
-        <el-form-item label="上级部门" prop="parentId">
+        <el-form-item label="上级部门" prop="parentCode">
           <el-tree-select
-            v-model="formData.parentId"
+            v-model="formData.parentCode"
             placeholder="选择上级部门"
             :data="deptOptions"
             filterable
             check-strictly
             :render-after-expand="false"
+            :props="{ children: 'children', label: 'name', value: 'code' }"
           />
         </el-form-item>
         <el-form-item label="部门名称" prop="name">
           <el-input v-model="formData.name" placeholder="请输入部门名称" />
         </el-form-item>
-        <el-form-item label="显示排序" prop="sort">
+        <el-form-item label="显示排序" prop="sequence">
           <el-input-number
-            v-model="formData.sort"
+            v-model="formData.sequence"
             controls-position="right"
             style="width: 100px"
             :min="0"
@@ -157,40 +138,43 @@ defineOptions({
 });
 
 import DeptAPI from "@/api/dept";
-import { DeptVO, DeptForm, DeptQuery } from "@/api/dept/model";
+import {
+  DeptResponse,
+  DeptFormRequest,
+  DeptQueryRequest,
+} from "@/api/dept/model";
 
 const queryFormRef = ref(ElForm);
 const deptFormRef = ref(ElForm);
 
 const loading = ref(false);
-const ids = ref<number[]>([]);
+const codes = ref<string[]>([]);
 const dialog = reactive({
   title: "",
   visible: false,
 });
 
-const queryParams = reactive<DeptQuery>({});
-const deptList = ref<DeptVO[]>();
+const queryParams = reactive<DeptQueryRequest>({});
+const deptList = ref<DeptResponse[]>();
 
 const deptOptions = ref<OptionType[]>();
 
-const formData = reactive<DeptForm>({
+const formData = reactive<DeptFormRequest>({
   status: 1,
-  parentId: 0,
-  sort: 1,
+  sequence: 1,
 });
 
 const rules = reactive({
   parentId: [{ required: true, message: "上级部门不能为空", trigger: "blur" }],
   name: [{ required: true, message: "部门名称不能为空", trigger: "blur" }],
-  sort: [{ required: true, message: "显示排序不能为空", trigger: "blur" }],
+  sequence: [{ required: true, message: "显示排序不能为空", trigger: "blur" }],
 });
 
 /** 查询 */
 function handleQuery() {
   loading.value = true;
-  DeptAPI.getList(queryParams).then((data) => {
-    deptList.value = data;
+  DeptAPI.getDeptTree(queryParams).then((result) => {
+    deptList.value = result;
     loading.value = false;
   });
 }
@@ -203,16 +187,16 @@ function resetQuery() {
 
 /** 行复选框选中记录选中ID集合 */
 function handleSelectionChange(selection: any) {
-  ids.value = selection.map((item: any) => item.id);
+  codes.value = selection.map((item: any) => item.id);
 }
 
 /** 获取部门下拉数据  */
 async function loadDeptOptions() {
-  DeptAPI.getOptions().then((data) => {
+  DeptAPI.getDeptTree().then((data) => {
     deptOptions.value = [
       {
-        value: 0,
-        label: "顶级部门",
+        code: "0",
+        name: "一级部门",
         children: data,
       },
     ];
@@ -225,17 +209,17 @@ async function loadDeptOptions() {
  * @param parentId 父部门ID
  * @param deptId 部门ID
  */
-async function openDialog(parentId?: number, deptId?: number) {
+async function openDialog(parentCode?: string, code?: string) {
   await loadDeptOptions();
   dialog.visible = true;
-  if (deptId) {
+  if (code) {
     dialog.title = "修改部门";
-    DeptAPI.getFormData(deptId).then((data) => {
+    DeptAPI.getDeptByCode(code).then((data) => {
       Object.assign(formData, data);
     });
   } else {
     dialog.title = "新增部门";
-    formData.parentId = parentId ?? 0;
+    formData.parentCode = parentCode ?? "0";
   }
 }
 
@@ -243,10 +227,10 @@ async function openDialog(parentId?: number, deptId?: number) {
 function handleSubmit() {
   deptFormRef.value.validate((valid: any) => {
     if (valid) {
-      const deptId = formData.id;
+      const code = formData.code;
       loading.value = true;
-      if (deptId) {
-        DeptAPI.update(deptId, formData)
+      if (code) {
+        DeptAPI.updateDept(code, formData)
           .then(() => {
             ElMessage.success("修改成功");
             closeDialog();
@@ -254,7 +238,7 @@ function handleSubmit() {
           })
           .finally(() => (loading.value = false));
       } else {
-        DeptAPI.add(formData)
+        DeptAPI.createDept(formData)
           .then(() => {
             ElMessage.success("新增成功");
             closeDialog();
@@ -267,8 +251,8 @@ function handleSubmit() {
 }
 
 /** 删除部门 */
-function handleDelete(deptId?: number) {
-  const deptIds = [deptId || ids.value].join(",");
+function handleDelete(code?: string) {
+  const deptIds = [code || codes.value].join(",");
 
   if (!deptIds) {
     ElMessage.warning("请勾选删除项");
@@ -298,10 +282,10 @@ function resetForm() {
   deptFormRef.value.resetFields();
   deptFormRef.value.clearValidate();
 
-  formData.id = undefined;
-  formData.parentId = 0;
+  formData.code = undefined;
+  formData.parentCode = "0";
   formData.status = 1;
-  formData.sort = 1;
+  formData.sequence = 1;
 }
 
 onMounted(() => {

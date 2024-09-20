@@ -91,9 +91,9 @@ declare global {
    */
   interface OptionType {
     /** 值 */
-    value: string | number;
+    code: string;
     /** 文本 */
-    label: string;
+    name: string;
     /** 子列表  */
     children?: OptionType[];
   }

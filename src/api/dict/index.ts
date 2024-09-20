@@ -3,14 +3,14 @@ import {
   DictQueryRequest,
   DictPageResponse,
   DictResponse,
-  DictRequest,
+  DictFormRequest,
   DictItemQueryRequest,
-  DictItemResponse,
   DictItemPageResponse,
-  DictItemRequest,
+  DictItemFormRequest,
 } from "./model";
 
 class DictAPI {
+  // 分页查询系统字典
   static getDictPage(queryParams: DictQueryRequest) {
     return request<any, DictPageResponse>({
       url: "/v1/dicts/v1/page",
@@ -19,6 +19,7 @@ class DictAPI {
     });
   }
 
+  // 根据编号查询系统字典
   static getDictByCode(code: string) {
     return request<any, ResponseData<DictResponse>>({
       url: "/v1/dicts/v1/" + code,
@@ -26,7 +27,8 @@ class DictAPI {
     });
   }
 
-  static createDict(data: DictRequest) {
+  // 创建系统字典
+  static createDict(data: DictFormRequest) {
     return request({
       url: "/v1/dicts/v1",
       method: "post",
@@ -34,7 +36,8 @@ class DictAPI {
     });
   }
 
-  static updateDict(code: string, data: DictRequest) {
+  // 修改系统字典
+  static updateDict(code: string, data: DictFormRequest) {
     return request({
       url: "/v1/dicts/v1/" + code,
       method: "put",
@@ -42,6 +45,7 @@ class DictAPI {
     });
   }
 
+  // 根据编号批量删除系统字典
   static deleteDictByCodes(codes: string[]) {
     return request({
       url: "/v1/dicts/v1",
@@ -50,6 +54,9 @@ class DictAPI {
     });
   }
 
+  // ----------
+
+  // 分页查询系统字典项
   static getDictItemPage(queryParams: DictItemQueryRequest) {
     return request<any, DictItemPageResponse>({
       url: "/v1/dict-items/v1/page",
@@ -58,6 +65,7 @@ class DictAPI {
     });
   }
 
+  // 根据编号查询系统字典项
   static getDictItemByCode(code: string) {
     return request<any, DictItemPageResponse>({
       url: "/v1/dict-items/v1/" + code,
@@ -65,7 +73,8 @@ class DictAPI {
     });
   }
 
-  static createDictItem(data: DictItemRequest) {
+  // 创建系统字典项
+  static createDictItem(data: DictItemFormRequest) {
     return request({
       url: "/v1/dict-items/v1",
       method: "post",
@@ -73,7 +82,8 @@ class DictAPI {
     });
   }
 
-  static updateDictItem(code: string, data: DictItemRequest) {
+  // 修改系统字典项
+  static updateDictItem(code: string, data: DictItemFormRequest) {
     return request({
       url: "/v1/dict-items/v1/" + code,
       method: "put",
@@ -81,6 +91,7 @@ class DictAPI {
     });
   }
 
+  // 根据编号批量删除系统字典项
   static deleteDictItemByCodes(codes: string[]) {
     return request({
       url: "/v1/dict-items/v1",

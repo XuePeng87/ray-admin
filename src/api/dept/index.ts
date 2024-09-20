@@ -1,77 +1,50 @@
 import request from "@/utils/request";
-import { DeptForm, DeptQuery, DeptVO } from "./model";
+import { DeptQueryRequest, DeptFormRequest, DeptResponse } from "./model";
 
 class DeptAPI {
-  /**
-   * 部门树形表格
-   *
-   * @param queryParams
-   */
-  static getList(queryParams?: DeptQuery) {
-    return request<any, DeptVO[]>({
-      url: "/api/v1/dept",
+  // 查询系统部门树
+  static getDeptTree(queryParams?: DeptQueryRequest) {
+    return request<any, DeptResponse[]>({
+      url: "/v1/depts/v1",
       method: "get",
       params: queryParams,
     });
   }
 
-  /**
-   * 部门下拉列表
-   */
-  static getOptions() {
-    return request<any, OptionType[]>({
-      url: "/api/v1/dept/options",
+  // 根据编号查询系统部门
+  static getDeptByCode(code: string) {
+    return request<any, DeptResponse>({
+      url: "/v1/depts/v1/" + code,
       method: "get",
     });
   }
 
-  /**
-   * 获取部门详情
-   *
-   * @param id
-   */
-  static getFormData(id: number) {
-    return request<any, DeptForm>({
-      url: "/api/v1/dept/" + id + "/form",
-      method: "get",
-    });
-  }
-
-  /**
-   * 新增部门
-   *
-   * @param data
-   */
-  static add(data: DeptForm) {
+  // 创建系统部门
+  static createDept(data: DeptFormRequest) {
     return request({
-      url: "/api/v1/dept",
+      url: "/v1/depts/v1",
       method: "post",
       data: data,
     });
   }
 
-  /**
-   *  修改部门
-   *
-   * @param id
-   * @param data
-   */
-  static update(id: number, data: DeptForm) {
+  // 修改系统部门
+  static updateDept(code: string, data: DeptFormRequest) {
     return request({
-      url: "/api/v1/dept/" + id,
+      url: "/v1/depts/v1/" + code,
       method: "put",
       data: data,
     });
   }
 
   /**
-   * 删除部门
+   * 根据编号删除系统部门
    *
    * @param ids
    */
-  static deleteByIds(ids: string) {
+  static deleteByIds(code: string) {
     return request({
-      url: "/api/v1/dept/" + ids,
+      url: "/v1/depts/v1/" + code,
       method: "delete",
     });
   }

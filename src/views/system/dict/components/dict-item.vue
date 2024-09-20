@@ -130,7 +130,7 @@ import DictAPI from "@/api/dict";
 import {
   DictItemQueryRequest,
   DictItemResponse,
-  DictItemRequest,
+  DictItemFormRequest,
 } from "@/api/dict/model";
 
 const props = defineProps({
@@ -179,7 +179,7 @@ const dialog = reactive({
   visible: false,
 });
 
-const formData = reactive<DictItemRequest>({
+const formData = reactive<DictItemFormRequest>({
   status: 1,
   dictValue: props.dictValue,
   sequence: 1,

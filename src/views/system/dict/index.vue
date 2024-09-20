@@ -150,7 +150,11 @@ defineOptions({
 
 import DictAPI from "@/api/dict";
 
-import { DictQueryRequest, DictResponse, DictRequest } from "@/api/dict/model";
+import {
+  DictQueryRequest,
+  DictResponse,
+  DictFormRequest,
+} from "@/api/dict/model";
 
 const queryFormRef = ref(ElForm);
 const dataFormRef = ref(ElForm);
@@ -173,7 +177,7 @@ const dialog = reactive({
   visible: false,
 });
 
-const formData = reactive<DictRequest>({
+const formData = reactive<DictFormRequest>({
   status: 1,
 });
 
