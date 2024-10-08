@@ -20,8 +20,8 @@ export interface CurrnetUser {
   name?: string;
   email?: string;
   avatar?: string;
-  roles?: CurrentUserRole[];
-  funcs?: CurrentUserFunc[];
+  roles: CurrentUserRole[];
+  funcs: CurrentUserFunc[];
 }
 
 export interface CurrentUserRole {

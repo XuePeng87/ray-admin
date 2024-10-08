@@ -7,7 +7,7 @@
         <el-form-item label="字典名称" prop="name">
           <el-input
             v-model="queryParams.name"
-            placeholder="字典名称"
+            placeholder="请输入字典名称"
             clearable
             @keyup.enter="handleQuery"
           />
@@ -91,6 +91,7 @@
       :title="dialog.title"
       width="500px"
       @close="closeDialog"
+      :close-on-press-escape="false"
     >
       <el-form
         ref="dataFormRef"
@@ -133,6 +134,7 @@
       :title="dictDataDialog.title"
       width="1000px"
       @close="closeDictDialog"
+      :close-on-press-escape="false"
     >
       <dict-item
         v-model:dictName="selectedDict.name"

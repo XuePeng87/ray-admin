@@ -5,7 +5,7 @@
         <el-form-item label="关键字" prop="name">
           <el-input
             v-model="queryParams.name"
-            placeholder="部门名称"
+            placeholder="请输入部门名称"
             @keyup.enter="handleQuery"
           />
         </el-form-item>
@@ -21,8 +21,11 @@
 
     <el-card shadow="never" class="table-container">
       <template #header>
-        <el-button type="success" @click="openDialog('0', undefined)"
-          ><i-ep-plus />新增</el-button
+        <el-button
+          type="success"
+          @click="openDialog('0', undefined)"
+          v-hasPerm="['sys:dept:create']"
+          ><i-ep-plus />创建</el-button
         >
         <el-button
           type="danger"
@@ -37,6 +40,7 @@
         :data="deptList"
         row-key="code"
         default-expand-all
+        highlight-current-row
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" align="center" />
@@ -84,6 +88,7 @@
       :title="dialog.title"
       width="600px"
       @closed="closeDialog"
+      :close-on-press-escape="false"
     >
       <el-form
         ref="deptFormRef"
@@ -156,9 +161,7 @@ const dialog = reactive({
 
 const queryParams = reactive<DeptQueryRequest>({});
 const deptList = ref<DeptResponse[]>();
-
 const deptOptions = ref<OptionType[]>();
-
 const formData = reactive<DeptFormRequest>({
   status: 1,
   sequence: 1,

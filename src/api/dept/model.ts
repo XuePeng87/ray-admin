@@ -1,5 +1,5 @@
 /**
- * 系统部分查询请求对象
+ * 系统部门查询请求对象
  */
 export interface DeptQueryRequest {
   name?: string;

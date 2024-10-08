@@ -6,7 +6,7 @@ import { LoginRequest, CurrnetUser } from "@/api/auth/model";
 import { TOKEN_KEY } from "@/enums/CacheEnum";
 
 export const useUserStore = defineStore("user", () => {
-  const user = ref<CurrnetUser>({ roles: [] });
+  const user = ref<CurrnetUser>({ roles: [], funcs: [] });
 
   /**
    * 登录

@@ -7,7 +7,7 @@
         <el-form-item label="字典项名称" prop="name">
           <el-input
             v-model="queryParams.name"
-            placeholder="字典项名称"
+            placeholder="请输入字典项名称"
             clearable
           />
         </el-form-item>

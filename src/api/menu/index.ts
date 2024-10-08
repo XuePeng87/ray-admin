@@ -1,87 +1,46 @@
 import request from "@/utils/request";
-import { MenuQuery, MenuVO, MenuForm, RouteVO } from "./model";
+import { FuncQueryRequest, FuncResponse, FuncFormRequest } from "./model";
 
 class MenuAPI {
-  /**
-   * 获取路由列表
-   */
-  static getRoutes() {
-    return request<any, RouteVO[]>({
-      url: "/api/v1/menus/routes",
-      method: "get",
-    });
-  }
-
-  /**
-   * 获取菜单树形列表
-   *
-   * @param queryParams
-   */
-  static getList(queryParams: MenuQuery) {
-    return request<any, MenuVO[]>({
-      url: "/api/v1/menus",
+  // 查询系统功能树
+  static getFuncTree(queryParams?: FuncQueryRequest) {
+    return request<any, FuncResponse[]>({
+      url: "/v1/funcs/v1",
       method: "get",
       params: queryParams,
     });
   }
 
-  /**
-   * 获取菜单下拉数据源
-   */
-  static getOptions() {
-    return request<any, OptionType[]>({
-      url: "/api/v1/menus/options",
+  // 根据编号查询系统功能
+  static getFuncByCode(code: string) {
+    return request<any, FuncResponse>({
+      url: "/v1/funcs/v1/" + code,
       method: "get",
     });
   }
 
-  /**
-   * 获取菜单表单数据
-   *
-   * @param id
-   */
-  static getFormData(id: number) {
-    return request<any, MenuForm>({
-      url: "/api/v1/menus/" + id + "/form",
-      method: "get",
-    });
-  }
-
-  /**
-   * 添加菜单
-   *
-   * @param data
-   */
-  static add(data: MenuForm) {
+  // 创建系统功能
+  static add(data: FuncFormRequest) {
     return request({
-      url: "/api/v1/menus",
+      url: "/v1/funcs/v1",
       method: "post",
       data: data,
     });
   }
 
-  /**
-   * 修改菜单
-   *
-   * @param id
-   * @param data
-   */
-  static update(id: string, data: MenuForm) {
+  // 修改系统功能
+  static update(code: string, data: FuncFormRequest) {
     return request({
-      url: "/api/v1/menus/" + id,
+      url: "/v1/funcs/v1/" + code,
       method: "put",
       data: data,
     });
   }
 
-  /**
-   * 删除菜单
-   *
-   * @param id 菜单ID
-   */
-  static deleteById(id: number) {
+  // 根据编号删除系统功能
+  static deleteByCode(code: string) {
     return request({
-      url: "/api/v1/menus/" + id,
+      url: "/v1/funcs/v1/" + code,
       method: "delete",
     });
   }
