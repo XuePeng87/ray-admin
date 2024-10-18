@@ -79,6 +79,7 @@
       :title="dialog.title"
       width="500px"
       @close="closeDialog"
+      :close-on-press-escape="false"
     >
       <el-form
         ref="dataFormRef"

@@ -1,106 +1,69 @@
 import request from "@/utils/request";
-import { RoleQuery, RolePageResult, RoleForm } from "./model";
+import {
+  RoleQueryRequest,
+  RoleResponse,
+  RolePageResponse,
+  RoleFormRequest,
+} from "./model";
 
 class RoleAPI {
-  /**
-   * 获取角色分页数据
-   *
-   * @param queryParams
-   */
-  static getPage(queryParams?: RoleQuery) {
-    return request<any, RolePageResult>({
-      url: "/api/v1/roles/page",
+  // 分页查询系统角色
+  static getRolePage(queryParams: RoleQueryRequest) {
+    return request<any, RolePageResponse>({
+      url: "/v1/roles/v1/page",
       method: "get",
       params: queryParams,
     });
   }
 
-  /**
-   * 获取角色下拉数据源
-   *
-   * @param queryParams
-   */
-  static getOptions(queryParams?: RoleQuery) {
-    return request<any, OptionType[]>({
-      url: "/api/v1/roles/options",
-      method: "get",
-      params: queryParams,
-    });
-  }
-
-  /**
-   * 获取角色的菜单ID集合
-   *
-   * @param queryParams
-   */
-  static getRoleMenuIds(roleId: number) {
-    return request<any, number[]>({
-      url: "/api/v1/roles/" + roleId + "/menuIds",
+  // 根据编号查询系统角色
+  static getRoleByCode(code: string) {
+    return request<any, ResponseData<RoleResponse>>({
+      url: "/v1/roles/v1/" + code,
       method: "get",
     });
   }
 
-  /**
-   * 分配菜单权限给角色
-   *
-   * @param queryParams
-   */
-  static updateRoleMenus(roleId: number, data: number[]) {
+  // 创建系统角色
+  static createRole(data: RoleFormRequest) {
     return request({
-      url: "/api/v1/roles/" + roleId + "/menus",
-      method: "put",
-      data: data,
-    });
-  }
-
-  /**
-   * 获取角色表单数据
-   *
-   * @param id
-   */
-  static getFormData(id: number) {
-    return request<any, RoleForm>({
-      url: "/api/v1/roles/" + id + "/form",
-      method: "get",
-    });
-  }
-
-  /**
-   * 添加角色
-   *
-   * @param data
-   */
-  static add(data: RoleForm) {
-    return request({
-      url: "/api/v1/roles",
+      url: "/v1/roles/v1",
       method: "post",
       data: data,
     });
   }
 
-  /**
-   * 更新角色
-   *
-   * @param id
-   * @param data
-   */
-  static update(id: number, data: RoleForm) {
+  // 修改系统角色
+  static updateRole(code: string, data: RoleFormRequest) {
     return request({
-      url: "/api/v1/roles/" + id,
+      url: "/v1/roles/v1/" + code,
       method: "put",
       data: data,
     });
   }
 
-  /**
-   * 批量删除角色，多个以英文逗号(,)分割
-   *
-   * @param ids
-   */
-  static deleteByIds(ids: string) {
+  // 根据编号删除系统角色
+  static deleteRoleByCode(code: string) {
     return request({
-      url: "/api/v1/roles/" + ids,
+      url: "/v1/roles/v1/" + code,
       method: "delete",
+    });
+  }
+
+  // 给角色授权功能
+  static saveFuncToRole(code: string, funcCodes: string[]) {
+    return request({
+      url: "/v1/roles/v1/" + code + "/grant-func",
+      method: "post",
+      data: funcCodes,
+    });
+  }
+
+  // 查询角色授权的功能
+  static findFuncByCode(code: string) {
+    return request<any, string[]>({
+      url: "/v1/roles/v1/" + code + "/grant-func",
+      method: "get",
     });
   }
 }

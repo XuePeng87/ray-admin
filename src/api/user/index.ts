@@ -1,129 +1,47 @@
 import request from "@/utils/request";
-import { UserForm, UserPageVO, UserQuery } from "./model";
+import { UserQueryRequest, UserResponse, UserFormRequest } from "./model";
 
 class UserAPI {
-  /**
-   * 获取用户分页列表
-   *
-   * @param queryParams
-   */
-  static getPage(queryParams: UserQuery) {
-    return request<any, PageResult<UserPageVO[]>>({
-      url: "/api/v1/users/page",
+  // 分页查询系统用户
+  static getUserPage(queryParams: UserQueryRequest) {
+    return request<any, PageResult<UserResponse[]>>({
+      url: "/v1/users/v1/page",
       method: "get",
       params: queryParams,
     });
   }
 
-  /**
-   * 获取用户表单详情
-   *
-   * @param userId
-   */
-  static getFormData(userId: number) {
-    return request<any, UserForm>({
-      url: "/api/v1/users/" + userId + "/form",
+  // 根据编号查询系统用户
+  static getUserByCode(code: string) {
+    return request<any, UserResponse>({
+      url: "/v1/users/v1/" + code,
       method: "get",
     });
   }
 
-  /**
-   * 添加用户
-   *
-   * @param data
-   */
-  static add(data: UserForm) {
+  // 创建系统用户
+  static createUser(data: UserFormRequest) {
     return request({
-      url: "/api/v1/users",
+      url: "/v1/users/v1",
       method: "post",
       data: data,
     });
   }
 
-  /**
-   * 修改用户
-   *
-   * @param id
-   * @param data
-   */
-  static update(id: number, data: UserForm) {
+  // 修改系统用户
+  static updateUser(code: string, data: UserFormRequest) {
     return request({
-      url: "/api/v1/users/" + id,
+      url: "/v1/users/v1/" + code,
       method: "put",
       data: data,
     });
   }
 
-  /**
-   * 修改用户密码
-   *
-   * @param id
-   * @param password
-   */
-  static updatePassword(id: number, password: string) {
+  // 根据编号删除系统用户
+  static deleteUserByCode(code: string) {
     return request({
-      url: "/api/v1/users/" + id + "/password",
-      method: "patch",
-      params: { password: password },
-    });
-  }
-
-  /**
-   * 删除用户
-   *
-   * @param ids
-   */
-  static deleteByIds(ids: string) {
-    return request({
-      url: "/api/v1/users/" + ids,
+      url: "/v1/users/v1/" + code,
       method: "delete",
-    });
-  }
-
-  /**
-   * 下载用户导入模板
-   *
-   * @returns
-   */
-  static downloadTemplate() {
-    return request({
-      url: "/api/v1/users/template",
-      method: "get",
-      responseType: "arraybuffer",
-    });
-  }
-
-  /**
-   * 导出用户
-   *
-   * @param queryParams
-   * @returns
-   */
-  static export(queryParams: UserQuery) {
-    return request({
-      url: "/api/v1/users/export",
-      method: "get",
-      params: queryParams,
-      responseType: "arraybuffer",
-    });
-  }
-
-  /**
-   * 导入用户
-   *
-   * @param file
-   */
-  static import(deptId: number, file: File) {
-    const formData = new FormData();
-    formData.append("file", file);
-    return request({
-      url: "/api/v1/users/import",
-      method: "post",
-      params: { deptId: deptId },
-      data: formData,
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
     });
   }
 }

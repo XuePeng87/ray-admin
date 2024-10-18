@@ -1,103 +1,39 @@
-/**
- * 用户查询对象类型
- */
-export interface UserQuery extends PageQuery {
-  keywords?: string;
-  status?: number;
-  deptId?: number;
+// 系统用户查询请求对象
+export interface UserQueryRequest extends PageQuery {
+  phoneNumber?: string;
+  name?: string;
+  deptCode?: string;
   startTime?: string;
   endTime?: string;
 }
 
+// 系统用户响应对象
+export interface UserResponse {
+  deptCode?: string;
+  roleCodes?: string[];
+  phoneNumber?: string;
+  name?: string;
+  email?: string;
+  status?: number;
+  remark?: string;
+}
+
+// 系统用户分页列表对象
+export type UserPageResponse = PageResult<UserResponse[]>;
+
+// 系统用户创建、修改请求对象
+export interface UserRequest {}
+
 /**
  * 用户分页对象
  */
-export interface UserPageVO {
-  /**
-   * 用户头像地址
-   */
-  avatar?: string;
-  /**
-   * 创建时间
-   */
-  createTime?: Date;
-  /**
-   * 部门名称
-   */
-  deptName?: string;
-  /**
-   * 用户邮箱
-   */
+export interface UserFormRequest {
+  deptCode?: string;
+  roleCodes?: string[];
+  code?: string;
+  phoneNumber?: string;
+  name?: string;
   email?: string;
-  /**
-   * 性别
-   */
-  genderLabel?: string;
-  /**
-   * 用户ID
-   */
-  id?: number;
-  /**
-   * 手机号
-   */
-  mobile?: string;
-  /**
-   * 用户昵称
-   */
-  nickname?: string;
-  /**
-   * 角色名称，多个使用英文逗号(,)分割
-   */
-  roleNames?: string;
-  /**
-   * 用户状态(1:启用;0:禁用)
-   */
   status?: number;
-  /**
-   * 用户名
-   */
-  username?: string;
-}
-
-/**
- * 用户表单类型
- */
-export interface UserForm {
-  /**
-   * 用户头像
-   */
-  avatar?: string;
-  /**
-   * 部门ID
-   */
-  deptId?: number;
-  /**
-   * 邮箱
-   */
-  email?: string;
-  /**
-   * 性别
-   */
-  gender?: number;
-  /**
-   * 用户ID
-   */
-  id?: number;
-  mobile?: string;
-  /**
-   * 昵称
-   */
-  nickname?: string;
-  /**
-   * 角色ID集合
-   */
-  roleIds?: number[];
-  /**
-   * 用户状态(1:正常;0:禁用)
-   */
-  status?: number;
-  /**
-   * 用户名
-   */
-  username?: string;
+  remark?: string;
 }

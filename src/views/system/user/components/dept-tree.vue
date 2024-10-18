@@ -11,7 +11,7 @@
       ref="deptTreeRef"
       class="mt-2"
       :data="deptList"
-      :props="{ children: 'children', label: 'label', disabled: '' }"
+      :props="{ children: 'children', label: 'name' }"
       :expand-on-click-node="false"
       :filter-node-method="handleFilter"
       default-expand-all
@@ -24,7 +24,7 @@
 import DeptAPI from "@/api/dept";
 const props = defineProps({
   modelValue: {
-    type: [Number],
+    type: [String],
     default: undefined,
   },
 });
@@ -61,7 +61,7 @@ function handleNodeClick(data: { [key: string]: any }) {
 }
 
 onBeforeMount(() => {
-  DeptAPI.getOptions().then((data) => {
+  DeptAPI.getDeptTree().then((data) => {
     deptList.value = data;
   });
 });
