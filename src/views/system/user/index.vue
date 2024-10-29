@@ -11,7 +11,7 @@
       <el-col :lg="20" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="关键字" prop="keywords">
+            <el-form-item label="用户名" prop="name">
               <el-input
                 v-model="queryParams.name"
                 placeholder="用户名"
@@ -49,24 +49,14 @@
           <template #header>
             <div class="flex justify-between">
               <div>
-                <el-button type="success" @click="openDialog('user-form')"
+                <el-button type="success" @click="openDialog()"
                   ><i-ep-plus />新增</el-button
-                >
-                <el-button
-                  type="danger"
-                  :disabled="removeIds.length === 0"
-                  @click="handleDelete()"
-                  ><i-ep-delete />删除</el-button
                 >
               </div>
             </div>
           </template>
 
-          <el-table
-            v-loading="loading"
-            :data="pageData"
-            @selection-change="handleSelectionChange"
-          >
+          <el-table v-loading="loading" :data="pageData">
             <el-table-column
               key="username"
               label="用户名"
@@ -112,14 +102,14 @@
                   type="primary"
                   link
                   size="small"
-                  @click="openDialog('user-form', scope.row.id)"
+                  @click="openDialog(scope.row.code)"
                   ><i-ep-edit />编辑</el-button
                 >
                 <el-button
                   type="primary"
                   link
                   size="small"
-                  @click="handleDelete(scope.row.id)"
+                  @click="handleDelete(scope.row.code)"
                   ><i-ep-delete />删除</el-button
                 >
               </template>
@@ -175,18 +165,8 @@
             filterable
             check-strictly
             :render-after-expand="false"
+            :props="{ children: 'children', label: 'name', value: 'code' }"
           />
-        </el-form-item>
-
-        <el-form-item label="角色" prop="roleCodes">
-          <el-select v-model="formData.roleCodes" multiple placeholder="请选择">
-            <el-option
-              v-for="item in roleList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
         </el-form-item>
 
         <el-form-item label="邮箱" prop="email">
@@ -199,8 +179,8 @@
 
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="formData.status">
-            <el-radio :label="1">正常</el-radio>
-            <el-radio :label="0">禁用</el-radio>
+            <el-radio :value="1">正常</el-radio>
+            <el-radio :value="0">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -223,34 +203,30 @@ defineOptions({
 
 import UserAPI from "@/api/user";
 import DeptAPI from "@/api/dept";
-import RoleAPI from "@/api/role";
-
 import {
   UserFormRequest,
   UserQueryRequest,
   UserResponse,
 } from "@/api/user/model";
-import type { UploadInstance } from "element-plus";
 
 const queryFormRef = ref(ElForm); // 查询表单
 const userFormRef = ref(ElForm); // 用户表单
 
 const loading = ref(false); //  加载状态
-const removeIds = ref([]); // 删除用户ID集合 用于批量删除
 const queryParams = reactive<UserQueryRequest>({
   offset: 1,
   limit: 10,
+  deptCode: "",
 });
 const dateTimeRange = ref("");
 const total = ref(0); // 数据总数
 const pageData = ref<UserResponse[]>(); // 用户分页数据
 const deptList = ref<OptionType[]>(); // 部门下拉数据源
-const roleList = ref<OptionType[]>(); // 角色下拉数据源
 
 watch(dateTimeRange, (newVal) => {
   if (newVal) {
-    queryParams.startTime = newVal[0];
-    queryParams.endTime = newVal[1];
+    queryParams.beginCreateTime = newVal[0];
+    queryParams.endCreateTime = newVal[1];
   }
 });
 
@@ -276,10 +252,10 @@ const importData = reactive({
 
 // 校验规则
 const rules = reactive({
-  username: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
+  name: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
   deptCode: [{ required: true, message: "所属部门不能为空", trigger: "blur" }],
-  roleCodes: [{ required: true, message: "用户角色不能为空", trigger: "blur" }],
   email: [
+    { required: true, message: "邮箱不能为空", trigger: "blur" },
     {
       pattern: /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/,
       message: "请输入正确的邮箱地址",
@@ -287,6 +263,7 @@ const rules = reactive({
     },
   ],
   phoneNumber: [
+    { required: true, message: "手机号不能为空", trigger: "blur" },
     {
       pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
       message: "请输入正确的手机号码",
@@ -315,14 +292,9 @@ function resetQuery() {
   dateTimeRange.value = "";
   queryParams.offset = 1;
   queryParams.deptCode = undefined;
-  queryParams.startTime = undefined;
-  queryParams.endTime = undefined;
+  queryParams.beginCreateTime = undefined;
+  queryParams.endCreateTime = undefined;
   handleQuery();
-}
-
-/** 行选中 */
-function handleSelectionChange(selection: any) {
-  removeIds.value = selection.map((item: any) => item.id);
 }
 
 /** 重置密码 */
@@ -346,13 +318,6 @@ function resetPassword(row: { [key: string]: any }) {
   });
 }
 
-/** 加载角色下拉数据源 */
-async function loadRoleOptions() {
-  RoleAPI.getOptions().then((data) => {
-    roleList.value = data;
-  });
-}
-
 /** 加载部门下拉数据源 */
 async function loadDeptOptions() {
   DeptAPI.getDeptTree().then((data) => {
@@ -366,27 +331,17 @@ async function loadDeptOptions() {
  * @param type 弹窗类型  用户表单：user-form | 用户导入：user-import
  * @param id 用户ID
  */
-async function openDialog(type: string, id?: number) {
+async function openDialog(code?: string) {
   dialog.visible = true;
-  dialog.type = type;
-
-  if (dialog.type === "user-form") {
-    // 用户表单弹窗
-    await loadDeptOptions();
-    await loadRoleOptions();
-    if (id) {
-      dialog.title = "修改用户";
-      UserAPI.getFormData(id).then((data) => {
-        Object.assign(formData, { ...data });
-      });
-    } else {
-      dialog.title = "新增用户";
-    }
-  } else if (dialog.type === "user-import") {
-    // 用户导入弹窗
-    dialog.title = "导入用户";
-    dialog.width = 600;
-    loadDeptOptions();
+  // 用户表单弹窗
+  await loadDeptOptions();
+  if (code) {
+    dialog.title = "修改用户";
+    UserAPI.getUserByCode(code).then((data) => {
+      Object.assign(formData, { ...data });
+    });
+  } else {
+    dialog.title = "新增用户";
   }
 }
 
@@ -410,62 +365,40 @@ function closeDialog() {
 }
 
 /** 表单提交 */
-const handleSubmit = useThrottleFn(() => {
-  if (dialog.type === "user-form") {
-    userFormRef.value.validate((valid: any) => {
-      if (valid) {
-        const userId = formData.id;
-        loading.value = true;
-        if (userId) {
-          UserAPI.update(userId, formData)
-            .then(() => {
-              ElMessage.success("修改用户成功");
-              closeDialog();
-              resetQuery();
-            })
-            .finally(() => (loading.value = false));
-        } else {
-          UserAPI.add(formData)
-            .then(() => {
-              ElMessage.success("新增用户成功");
-              closeDialog();
-              resetQuery();
-            })
-            .finally(() => (loading.value = false));
-        }
+function handleSubmit() {
+  userFormRef.value.validate((valid: any) => {
+    if (valid) {
+      const code = formData.code;
+      loading.value = true;
+      if (code) {
+        UserAPI.updateUser(code, formData)
+          .then(() => {
+            ElMessage.success("修改用户成功");
+            closeDialog();
+            resetQuery();
+          })
+          .finally(() => (loading.value = false));
+      } else {
+        UserAPI.createUser(formData)
+          .then(() => {
+            ElMessage.success("新增用户成功");
+            closeDialog();
+            resetQuery();
+          })
+          .finally(() => (loading.value = false));
       }
-    });
-  } else if (dialog.type === "user-import") {
-    if (!importData?.deptId) {
-      ElMessage.warning("请选择部门");
-      return false;
     }
-    if (!importData?.file) {
-      ElMessage.warning("上传Excel文件不能为空");
-      return false;
-    }
-    UserAPI.import(importData?.deptId, importData?.file).then((data) => {
-      ElMessage.success("导入用户成功");
-      closeDialog();
-      resetQuery();
-    });
-  }
-}, 3000);
+  });
+}
 
 /** 删除用户 */
-function handleDelete(id?: number) {
-  const userIds = [id || removeIds.value].join(",");
-  if (!userIds) {
-    ElMessage.warning("请勾选删除项");
-    return;
-  }
-
+function handleDelete(code: string) {
   ElMessageBox.confirm("确认删除用户?", "警告", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning",
   }).then(function () {
-    UserAPI.deleteByIds(userIds).then(() => {
+    UserAPI.deleteUserByCode(code).then(() => {
       ElMessage.success("删除成功");
       resetQuery();
     });

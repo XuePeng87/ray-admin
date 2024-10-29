@@ -215,7 +215,6 @@ function openDialog(code?: string) {
   if (code) {
     dialog.title = "修改字典";
     DictAPI.getDictByCode(code).then((data) => {
-      console.info(data);
       Object.assign(formData, data);
     });
   } else {

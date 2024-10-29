@@ -5,11 +5,11 @@ export interface RoleQueryRequest extends PageQuery {
 
 // 系统角色响应对象
 export interface RoleResponse {
-  code?: string;
-  name?: string;
-  status?: number;
-  sequence?: number;
-  remark?: string;
+  code: string;
+  name: string;
+  status: number;
+  sequence: number;
+  remark: string;
 }
 
 // 系统角色分页列表对象

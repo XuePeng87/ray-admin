@@ -388,7 +388,6 @@ function openDialog(parentCode?: string, code?: string) {
 
 /** 菜单类型切换事件处理 */
 function onMenuTypeChange() {
-  console.info(formData.type);
   // 如果菜单类型改变，清空路由路径；未改变在切换后还原路由路径
   if (formData.type !== menuCacheData.type) {
     formData.path = "";

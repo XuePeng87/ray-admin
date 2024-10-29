@@ -16,6 +16,15 @@ class RoleAPI {
     });
   }
 
+  // 查询系统角色
+  static getRoles(queryParams?: RoleQueryRequest) {
+    return request<any, RoleResponse[]>({
+      url: "/v1/roles/v1/list",
+      method: "get",
+      params: queryParams,
+    });
+  }
+
   // 根据编号查询系统角色
   static getRoleByCode(code: string) {
     return request<any, ResponseData<RoleResponse>>({
