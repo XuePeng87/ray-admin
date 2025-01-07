@@ -23,14 +23,11 @@
 
     <el-card shadow="never" class="table-container">
       <template #header>
-        <el-button type="success" @click="openDialog()"
-          ><i-ep-plus />创建</el-button
-        >
         <el-button
-          type="danger"
-          :disabled="codes.length === 0"
-          @click="handleDelete()"
-          ><i-ep-delete />删除</el-button
+          type="success"
+          @click="openDialog()"
+          v-hasPerm="['ray:system:dicts:create']"
+          ><i-ep-plus />创建</el-button
         >
       </template>
       <el-table
@@ -64,6 +61,7 @@
               link
               size="small"
               @click.stop="openDialog(scope.row.code)"
+              v-hasPerm="['ray:system:dicts:edit']"
               ><i-ep-edit />编辑</el-button
             >
             <el-button
@@ -71,6 +69,7 @@
               link
               size="small"
               @click.stop="handleDelete(scope.row.code)"
+              v-hasPerm="['ray:system:dicts:delete']"
               ><i-ep-delete />删除</el-button
             >
           </template>

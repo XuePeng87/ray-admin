@@ -49,7 +49,6 @@ const filterAsyncRoutes = (funcs: CurrentUserFunc[]) => {
         tmpRoute.component = modules[`../../views/error-page/404.vue`];
       }
     }
-    console.info(func);
     if (func.children) {
       tmpRoute.children = filterAsyncRoutes(func.children);
     }

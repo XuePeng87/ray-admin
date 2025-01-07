@@ -49,7 +49,10 @@
           <template #header>
             <div class="flex justify-between">
               <div>
-                <el-button type="success" @click="openDialog()"
+                <el-button
+                  type="success"
+                  @click="openDialog()"
+                  v-hasPerm="['ray:system:users:create']"
                   ><i-ep-plus />新增</el-button
                 >
               </div>
@@ -96,6 +99,7 @@
                   size="small"
                   link
                   @click="resetPassword(scope.row)"
+                  v-hasPerm="['ray:system:users:reset']"
                   ><i-ep-refresh-left />重置密码</el-button
                 >
                 <el-button
@@ -103,6 +107,7 @@
                   link
                   size="small"
                   @click="openDialog(scope.row.code)"
+                  v-hasPerm="['ray:system:users:edit']"
                   ><i-ep-edit />编辑</el-button
                 >
                 <el-button
@@ -110,6 +115,7 @@
                   link
                   size="small"
                   @click="handleDelete(scope.row.code)"
+                  v-hasPerm="['ray:system:users:delete']"
                   ><i-ep-delete />删除</el-button
                 >
               </template>
@@ -169,6 +175,21 @@
           />
         </el-form-item>
 
+        <el-form-item label="所属角色" prop="roleCodes">
+          <el-select
+            v-model="formData.roleCodes"
+            multiple
+            placeholder="请选择所属角色"
+          >
+            <el-option
+              v-for="item in roleList"
+              :key="item.code"
+              :label="item.name"
+              :value="item.code"
+            />
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="邮箱" prop="email">
           <el-input
             v-model="formData.email"
@@ -203,6 +224,7 @@ defineOptions({
 
 import UserAPI from "@/api/user";
 import DeptAPI from "@/api/dept";
+import RoleAPI from "@/api/role";
 import {
   UserFormRequest,
   UserQueryRequest,
@@ -222,6 +244,7 @@ const dateTimeRange = ref("");
 const total = ref(0); // 数据总数
 const pageData = ref<UserResponse[]>(); // 用户分页数据
 const deptList = ref<OptionType[]>(); // 部门下拉数据源
+const roleList = ref<OptionType[]>(); // 角色下拉数据源
 
 watch(dateTimeRange, (newVal) => {
   if (newVal) {
@@ -254,6 +277,7 @@ const importData = reactive({
 const rules = reactive({
   name: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
   deptCode: [{ required: true, message: "所属部门不能为空", trigger: "blur" }],
+  roleCodes: [{ required: true, message: "所属角色不能为空", trigger: "blur" }],
   email: [
     { required: true, message: "邮箱不能为空", trigger: "blur" },
     {
@@ -277,7 +301,6 @@ function handleQuery() {
   loading.value = true;
   UserAPI.getUserPage(queryParams)
     .then((data) => {
-      console.log("handleQuery", data);
       pageData.value = data.records;
       total.value = data.total;
     })
@@ -299,21 +322,17 @@ function resetQuery() {
 
 /** 重置密码 */
 function resetPassword(row: { [key: string]: any }) {
-  ElMessageBox.prompt(
-    "请输入用户「" + row.username + "」的新密码",
-    "重置密码",
-    {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-    }
-  ).then(({ value }) => {
-    if (!value || value.length < 6) {
+  ElMessageBox.prompt("请在文本框中输入【重置】来重置用户密码", "重置密码", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+  }).then(({ value }) => {
+    if (!value || value !== "重置") {
       // 检查密码是否为空或少于6位
-      ElMessage.warning("密码至少需要6位字符，请重新输入");
+      ElMessage.warning("请输入【重置】");
       return false;
     }
-    UserAPI.updatePassword(row.id, value).then(() => {
-      ElMessage.success("密码重置成功，新密码是：" + value);
+    UserAPI.resetPassword(row.code).then(() => {
+      ElMessage.success("密码重置成功");
     });
   });
 }
@@ -322,6 +341,13 @@ function resetPassword(row: { [key: string]: any }) {
 async function loadDeptOptions() {
   DeptAPI.getDeptTree().then((data) => {
     deptList.value = data;
+  });
+}
+
+/** 家在角色下拉数据源 */
+async function loadRoleOptions() {
+  RoleAPI.getRoles().then((data) => {
+    roleList.value = data;
   });
 }
 
@@ -335,6 +361,7 @@ async function openDialog(code?: string) {
   dialog.visible = true;
   // 用户表单弹窗
   await loadDeptOptions();
+  await loadRoleOptions();
   if (code) {
     dialog.title = "修改用户";
     UserAPI.getUserByCode(code).then((data) => {

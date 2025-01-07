@@ -9,11 +9,17 @@ export function hasAuth(
   value: string | string[],
   type: "button" | "role" = "button"
 ) {
-  const { roles } = useUserStore().user;
+  const { roles, permissions } = useUserStore().user;
   const roleNames = roles.map((r) => r.name);
   //「超级管理员」拥有所有的按钮权限
-  if (type === "button" && roleNames.includes("ROLE_SUPER_ADMIN")) {
+  if (roleNames.includes("ROLE_SUPER_ADMIN")) {
     return true;
+  } else {
+    return typeof value === "string"
+      ? permissions.includes(value)
+      : value.some((v) => {
+          return permissions.includes(v);
+        });
   }
   // const auths = type === "button" ? perms : roles;
   // return typeof value === "string"

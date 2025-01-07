@@ -198,7 +198,7 @@
         </el-form-item>
 
         <el-form-item
-          v-if="formData.type !== 2"
+          v-if="formData.type === 2"
           prop="visible"
           label="显示状态"
         >

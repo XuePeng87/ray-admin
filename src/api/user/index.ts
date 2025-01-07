@@ -44,6 +44,14 @@ class UserAPI {
       method: "delete",
     });
   }
+
+  // 根据编号重置用户登录密码
+  static resetPassword(code: string) {
+    return request({
+      url: "/v1/users/v1/" + code + "/reset-password",
+      method: "put",
+    });
+  }
 }
 
 export default UserAPI;

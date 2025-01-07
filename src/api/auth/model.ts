@@ -22,6 +22,7 @@ export interface CurrnetUser {
   avatar?: string;
   roles: CurrentUserRole[];
   funcs: CurrentUserFunc[];
+  permissions: string[];
 }
 
 export interface CurrentUserRole {

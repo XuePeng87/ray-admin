@@ -51,7 +51,7 @@ function handleFilter(value: string, data: any) {
   if (!value) {
     return true;
   }
-  return data.label.indexOf(value) !== -1;
+  return data.name.indexOf(value) !== -1;
 }
 
 /** 部门树节点 Click */

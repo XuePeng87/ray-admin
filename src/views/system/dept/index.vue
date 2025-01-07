@@ -24,15 +24,9 @@
         <el-button
           type="success"
           @click="openDialog('0', undefined)"
-          v-hasPerm="['sys:dept:create']"
+          v-hasPerm="['ray:system:depts:create']"
           ><i-ep-plus />创建</el-button
         >
-        <el-button
-          type="danger"
-          :disabled="codes.length === 0"
-          @click="handleDelete()"
-          ><i-ep-delete />删除
-        </el-button>
       </template>
 
       <el-table
@@ -61,6 +55,7 @@
               link
               size="small"
               @click.stop="openDialog(scope.row.code, undefined)"
+              v-hasPerm="['ray:system:depts:create']"
               ><i-ep-plus />新增
             </el-button>
             <el-button
@@ -68,6 +63,7 @@
               link
               size="small"
               @click.stop="openDialog(scope.row.parentCode, scope.row.code)"
+              v-hasPerm="['ray:system:depts:edit']"
               ><i-ep-edit />编辑
             </el-button>
             <el-button
@@ -75,6 +71,7 @@
               link
               size="small"
               @click.stop="handleDelete(scope.row.code)"
+              v-hasPerm="['ray:system:depts:delete']"
             >
               <i-ep-delete />删除
             </el-button>

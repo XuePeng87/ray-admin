@@ -15,7 +15,7 @@ service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const accessToken = localStorage.getItem(TOKEN_KEY);
     if (accessToken) {
-      config.headers["X-RAY-TOKEN"] = accessToken;
+      config.headers["RAY-TOKEN"] = accessToken;
     }
     return config;
   },
@@ -57,7 +57,11 @@ service.interceptors.response.use(
           });
         });
       } else {
-        ElMessage.error(msg || "系统出错");
+        if (error.response.status === 403) {
+          ElMessage.error(msg || "越权错误");
+        } else {
+          ElMessage.error(msg || "系统出错");
+        }
       }
     }
     return Promise.reject(error.message);
