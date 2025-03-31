@@ -80,13 +80,26 @@
       </el-table>
     </el-card>
 
-    <el-dialog
+    <!-- 将原来的 el-dialog 替换为 el-drawer -->
+    <el-drawer
       v-model="dialog.visible"
       :title="dialog.title"
-      width="600px"
-      @closed="closeDialog"
-      :close-on-press-escape="false"
+      :size="dialog.width"
+      :close-on-click-modal="false"
+      :close-on-press-escape="true"
+      direction="rtl"
+      class="custom-drawer"
+      :before-close="handleClose"
+      :show-close="false"
     >
+      <template #header="{ titleId, titleClass }">
+        <div class="custom-drawer-header">
+          <h4 :id="titleId" :class="titleClass">{{ dialog.title }}</h4>
+          <el-button type="primary" link @click="handleClose">
+            <i-ep-close />
+          </el-button>
+        </div>
+      </template>
       <el-form
         ref="deptFormRef"
         :model="formData"
@@ -124,12 +137,12 @@
       </el-form>
 
       <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit"> 确 定 </el-button>
-          <el-button @click="closeDialog"> 取 消 </el-button>
+        <div class="drawer-footer">
+          <el-button type="primary" @click="handleSubmit">确 定</el-button>
+          <el-button @click="handleClose">取 消</el-button>
         </div>
       </template>
-    </el-dialog>
+    </el-drawer>
   </div>
 </template>
 
@@ -154,6 +167,7 @@ const codes = ref<string[]>([]);
 const dialog = reactive({
   title: "",
   visible: false,
+  width: 500,
 });
 
 const queryParams = reactive<DeptQueryRequest>({});
@@ -165,7 +179,9 @@ const formData = reactive<DeptFormRequest>({
 });
 
 const rules = reactive({
-  parentId: [{ required: true, message: "上级部门不能为空", trigger: "blur" }],
+  parentCode: [
+    { required: true, message: "上级部门不能为空", trigger: "blur" },
+  ],
   name: [{ required: true, message: "部门名称不能为空", trigger: "blur" }],
   sequence: [{ required: true, message: "显示排序不能为空", trigger: "blur" }],
 });
@@ -203,6 +219,20 @@ async function loadDeptOptions() {
   });
 }
 
+/** 关闭侧边栏 */
+function handleClose() {
+  ElMessageBox.confirm("确认关闭？未保存的数据将会丢失", "提示", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      dialog.visible = false;
+      closeDialog();
+    })
+    .catch(() => {});
+}
+
 /**
  * 打开弹窗
  *
@@ -233,6 +263,7 @@ function handleSubmit() {
         DeptAPI.updateDept(code, formData)
           .then(() => {
             ElMessage.success("修改成功");
+            dialog.visible = false; // 添加这行，在成功后关闭侧边栏
             closeDialog();
             handleQuery();
           })
@@ -241,6 +272,7 @@ function handleSubmit() {
         DeptAPI.createDept(formData)
           .then(() => {
             ElMessage.success("新增成功");
+            dialog.visible = false; // 添加这行，在成功后关闭侧边栏
             closeDialog();
             handleQuery();
           })

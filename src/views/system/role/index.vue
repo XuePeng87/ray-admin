@@ -97,7 +97,7 @@
       direction="rtl"
       class="custom-drawer"
       :close-on-click-modal="false"
-      :close-on-press-escape="false"
+      :close-on-press-escape="true"
       :before-close="handleDialogClose"
       :show-close="false"
     >
@@ -153,11 +153,11 @@
     <el-drawer
       v-model="menuDialogVisible"
       :title="'【' + checkedRole.name + '】权限分配'"
-      :size="800"
+      :size="500"
       direction="rtl"
       class="custom-drawer"
       :close-on-click-modal="false"
-      :close-on-press-escape="false"
+      :close-on-press-escape="true"
       :before-close="handleMenuDialogClose"
       :show-close="false"
     >
@@ -173,12 +173,38 @@
       </template>
 
       <el-scrollbar v-loading="loading" max-height="600px">
+        <div
+          class="tree-operations"
+          style=" padding: 0 10px;margin-bottom: 10px"
+        >
+          <div
+            style="
+              display: flex;
+              gap: 10px;
+              align-items: center;
+              justify-content: space-between;
+            "
+          >
+            <el-input
+              v-model="filterText"
+              placeholder="输入关键字进行搜索"
+              clearable
+              style="flex: 1"
+            />
+            <el-button type="primary" link @click="toggleExpand">
+              {{ isExpand ? "折叠" : "展开" }}
+            </el-button>
+            <el-checkbox v-model="checkStrictly" label="父子联动" />
+          </div>
+        </div>
         <el-tree
           ref="menuRef"
           node-key="code"
           show-checkbox
           :data="menuList"
-          :default-expand-all="true"
+          :default-expand-all="isExpand"
+          :check-strictly="!checkStrictly"
+          :filter-node-method="filterNode"
           :props="{ children: 'children', label: 'name' }"
         >
           <template #default="{ data }">
@@ -250,6 +276,9 @@ const rules = reactive({
 const menuDialogVisible = ref(false);
 
 const menuList = ref<OptionType[]>([]);
+const filterText = ref(""); // 节点查找
+const isExpand = ref(true); // 是否展开
+const checkStrictly = ref(true); // 是否父子联动
 
 interface CheckedRole {
   code?: string;
@@ -377,6 +406,37 @@ function handleDelete(code: string) {
   });
 }
 
+/** 过滤树节点 */
+function filterNode(value: string, data: any) {
+  if (!value) return true;
+  return data.name.includes(value);
+}
+
+/** 监听搜索框变化 */
+watch(filterText, (val) => {
+  menuRef.value?.filter(val);
+});
+
+/** 切换展开/折叠状态 */
+function toggleExpand() {
+  isExpand.value = !isExpand.value;
+  nextTick(() => {
+    if (isExpand.value) {
+      // 展开所有节点
+      const allNodes = menuRef.value?.store?.nodesMap || {};
+      Object.keys(allNodes).forEach((key) => {
+        menuRef.value.store.nodesMap[key].expanded = true;
+      });
+    } else {
+      // 折叠所有节点
+      const allNodes = menuRef.value?.store?.nodesMap || {};
+      Object.keys(allNodes).forEach((key) => {
+        menuRef.value.store.nodesMap[key].expanded = false;
+      });
+    }
+  });
+}
+
 /** 打开分配菜单弹窗 */
 async function openMenuDialog(row: RoleResponse) {
   const code = row.code;
@@ -426,3 +486,13 @@ onMounted(() => {
   handleQuery();
 });
 </script>
+
+<style scoped>
+.tree-operations {
+  padding: 0 10px;
+}
+
+.tree-options {
+  padding: 0 5px;
+}
+</style>

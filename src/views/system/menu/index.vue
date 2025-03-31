@@ -35,6 +35,7 @@
         :data="menuList"
         row-key="code"
         highlight-current-row
+        :expand-row-keys="expandRowKeys"
         @row-click="onRowClick"
       >
         <el-table-column label="菜单名称" min-width="200">
@@ -123,21 +124,32 @@
       </el-table>
     </el-card>
 
-    <el-dialog
+    <!-- 将el-dialog修改成el-drawer -->
+    <el-drawer
       v-model="dialog.visible"
       :title="dialog.title"
-      destroy-on-close
-      append-to-body
-      width="1000px"
-      @close="closeDialog"
-      top="5vh"
-      :close-on-press-escape="false"
+      :size="650"
+      :close-on-click-modal="false"
+      :close-on-press-escape="true"
+      direction="rtl"
+      class="custom-drawer"
+      :before-close="handleClose"
+      :show-close="false"
     >
+      <template #header="{ titleId, titleClass }">
+        <div class="custom-drawer-header">
+          <h4 :id="titleId" :class="titleClass">{{ dialog.title }}</h4>
+          <el-button type="primary" link @click="handleClose">
+            <i-ep-close />
+          </el-button>
+        </div>
+      </template>
+
       <el-form
         ref="menuFormRef"
         :model="formData"
         :rules="rules"
-        label-width="160px"
+        label-width="120px"
       >
         <el-form-item label="父级菜单" prop="parentCode">
           <el-tree-select
@@ -265,13 +277,14 @@
         </el-form-item>
       </el-form>
 
+      <!-- 底部操作按钮 -->
       <template #footer>
-        <div class="dialog-footer">
+        <div class="drawer-footer">
           <el-button type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="closeDialog">取 消</el-button>
+          <el-button @click="handleClose">取 消</el-button>
         </div>
       </template>
-    </el-dialog>
+    </el-drawer>
   </div>
 </template>
 
@@ -290,6 +303,7 @@ import {
 
 const queryFormRef = ref(ElForm);
 const menuFormRef = ref(ElForm);
+const expandRowKeys = ref<string[]>([]);
 
 const loading = ref(false);
 const dialog = reactive({
@@ -336,6 +350,10 @@ function handleQuery() {
   MenuAPI.getFuncTree(queryParams)
     .then((data) => {
       menuList.value = data;
+      // 设置默认展开第一级菜单
+      expandRowKeys.value = data
+        .filter((item) => item.parentCode === "0")
+        .map((item) => item.code);
     })
     .then(() => {
       loading.value = false;
@@ -351,6 +369,20 @@ function resetQuery() {
 /**行点击事件 */
 function onRowClick(row: FuncResponse) {
   selectedRowFuncCode.value = row.code;
+}
+
+/** 关闭侧边栏 */
+function handleClose() {
+  ElMessageBox.confirm("确认关闭？未保存的数据将会丢失", "提示", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      dialog.visible = false;
+      resetForm();
+    })
+    .catch(() => {});
 }
 
 /**

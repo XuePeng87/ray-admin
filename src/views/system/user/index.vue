@@ -138,7 +138,7 @@
       :title="dialog.title"
       :size="dialog.width"
       :close-on-click-modal="false"
-      :close-on-press-escape="false"
+      :close-on-press-escape="true"
       direction="rtl"
       class="custom-drawer"
       :before-close="handleClose"
@@ -268,7 +268,7 @@ watch(dateTimeRange, (newVal) => {
 const dialog = reactive({
   visible: false,
   type: "user-form",
-  width: 800,
+  width: 500,
   title: "",
 });
 

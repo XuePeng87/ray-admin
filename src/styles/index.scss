@@ -73,18 +73,3 @@
     border-top: 1px solid #dcdfe6;
   }
 }
-
-// 表单样式优化
-.el-form {
-  .el-form-item {
-    margin-bottom: 22px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    .el-form-item__label {
-      font-weight: 500;
-    }
-  }
-}
