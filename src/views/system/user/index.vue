@@ -134,14 +134,25 @@
     </el-row>
 
     <!-- 弹窗 -->
-    <el-dialog
+    <el-drawer
       v-model="dialog.visible"
       :title="dialog.title"
-      :width="dialog.width"
-      append-to-body
-      @close="closeDialog"
+      :size="dialog.width"
+      :close-on-click-modal="false"
       :close-on-press-escape="false"
+      direction="rtl"
+      class="custom-drawer"
+      :before-close="handleClose"
+      :show-close="false"
     >
+      <template #header="{ titleId, titleClass }">
+        <div class="custom-drawer-header">
+          <h4 :id="titleId" :class="titleClass">{{ dialog.title }}</h4>
+          <el-button type="primary" link @click="handleClose">
+            <i-ep-close />
+          </el-button>
+        </div>
+      </template>
       <!-- 用户新增/编辑表单 -->
       <el-form
         v-if="dialog.type === 'user-form'"
@@ -205,14 +216,15 @@
           </el-radio-group>
         </el-form-item>
       </el-form>
-      <!-- 弹窗底部操作按钮 -->
+
+      <!-- 底部操作按钮 -->
       <template #footer>
-        <div class="dialog-footer">
+        <div class="drawer-footer">
           <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="closeDialog">取 消</el-button>
+          <el-button @click="handleClose">取 消</el-button>
         </div>
       </template>
-    </el-dialog>
+    </el-drawer>
   </div>
 </template>
 
@@ -296,6 +308,20 @@ const rules = reactive({
   ],
 });
 
+/** 关闭侧边栏 */
+function handleClose() {
+  ElMessageBox.confirm("确认关闭？未保存的数据将会丢失", "提示", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      dialog.visible = false;
+      closeDialog();
+    })
+    .catch(() => {});
+}
+
 /** 查询 */
 function handleQuery() {
   loading.value = true;
@@ -378,11 +404,9 @@ async function openDialog(code?: string) {
  * @param type 弹窗类型  用户表单：user-form | 用户导入：user-import
  */
 function closeDialog() {
-  dialog.visible = false;
   if (dialog.type === "user-form") {
     userFormRef.value.resetFields();
     userFormRef.value.clearValidate();
-
     formData.code = undefined;
     formData.status = 1;
   } else if (dialog.type === "user-import") {
@@ -391,6 +415,7 @@ function closeDialog() {
   }
 }
 
+/** 表单提交 */
 /** 表单提交 */
 function handleSubmit() {
   userFormRef.value.validate((valid: any) => {
@@ -401,6 +426,7 @@ function handleSubmit() {
         UserAPI.updateUser(code, formData)
           .then(() => {
             ElMessage.success("修改用户成功");
+            dialog.visible = false;
             closeDialog();
             resetQuery();
           })
@@ -409,6 +435,7 @@ function handleSubmit() {
         UserAPI.createUser(formData)
           .then(() => {
             ElMessage.success("新增用户成功");
+            dialog.visible = false;
             closeDialog();
             resetQuery();
           })

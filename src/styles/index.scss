@@ -26,3 +26,65 @@
     color: rgb(32 160 255);
   }
 }
+
+// 自定义抽屉样式
+.custom-drawer {
+  :deep(.el-drawer-header) {
+    padding: 0;
+    margin-bottom: 0;
+  }
+
+  .custom-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background-color: #f6f8f9;
+    border-bottom: 1px solid #dcdfe6;
+
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+      color: #1f2f3d;
+    }
+  }
+
+  :deep(.el-drawer-body) {
+    padding: 20px;
+    padding-bottom: 70px; // 为底部按钮留出空间
+
+    .el-form {
+      padding: 20px;
+    }
+  }
+
+  .drawer-footer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 16px 20px;
+    background: #fff;
+    border-top: 1px solid #dcdfe6;
+  }
+}
+
+// 表单样式优化
+.el-form {
+  .el-form-item {
+    margin-bottom: 22px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    :deep(.el-form-item-label) {
+      font-weight: 500;
+    }
+  }
+}
