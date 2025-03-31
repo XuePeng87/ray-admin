@@ -29,7 +29,7 @@
 
 // 自定义抽屉样式
 .custom-drawer {
-  :deep(.el-drawer-header) {
+  .el-drawer__header {
     padding: 0;
     margin-bottom: 0;
   }
@@ -50,7 +50,7 @@
     }
   }
 
-  :deep(.el-drawer-body) {
+  .el-drawer__body {
     padding: 20px;
     padding-bottom: 70px; // 为底部按钮留出空间
 
@@ -83,7 +83,7 @@
       margin-bottom: 0;
     }
 
-    :deep(.el-form-item-label) {
+    .el-form-item__label {
       font-weight: 500;
     }
   }

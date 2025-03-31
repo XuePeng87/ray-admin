@@ -89,14 +89,27 @@
       />
     </el-card>
 
-    <!-- 角色表单弹窗 -->
-    <el-dialog
+    <!-- 角色表单侧边栏 -->
+    <el-drawer
       v-model="dialog.visible"
       :title="dialog.title"
-      width="500px"
-      @close="closeDialog"
+      :size="500"
+      direction="rtl"
+      class="custom-drawer"
+      :close-on-click-modal="false"
       :close-on-press-escape="false"
+      :before-close="handleDialogClose"
+      :show-close="false"
     >
+      <template #header="{ titleId, titleClass }">
+        <div class="custom-drawer-header">
+          <h4 :id="titleId" :class="titleClass">{{ dialog.title }}</h4>
+          <el-button type="primary" link @click="handleDialogClose">
+            <i-ep-close />
+          </el-button>
+        </div>
+      </template>
+
       <el-form
         ref="roleFormRef"
         :model="formData"
@@ -110,15 +123,6 @@
         <el-form-item label="角色名称" prop="name">
           <el-input v-model="formData.name" placeholder="请输入角色名称" />
         </el-form-item>
-
-        <!-- <el-form-item label="数据权限" prop="dataScope">
-          <el-select v-model="formData.dataScope">
-            <el-option :key="0" label="全部数据" :value="0" />
-            <el-option :key="1" label="部门及子部门数据" :value="1" />
-            <el-option :key="2" label="本部门数据" :value="2" />
-            <el-option :key="3" label="本人数据" :value="3" />
-          </el-select>
-        </el-form-item> -->
 
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="formData.status">
@@ -138,20 +142,36 @@
       </el-form>
 
       <template #footer>
-        <div class="dialog-footer">
+        <div class="drawer-footer">
           <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="closeDialog">取 消</el-button>
+          <el-button @click="handleDialogClose">取 消</el-button>
         </div>
       </template>
-    </el-dialog>
+    </el-drawer>
 
-    <!-- 分配菜单弹窗  -->
-    <el-dialog
+    <!-- 分配菜单侧边栏  -->
+    <el-drawer
       v-model="menuDialogVisible"
       :title="'【' + checkedRole.name + '】权限分配'"
-      width="800px"
+      :size="800"
+      direction="rtl"
+      class="custom-drawer"
+      :close-on-click-modal="false"
       :close-on-press-escape="false"
+      :before-close="handleMenuDialogClose"
+      :show-close="false"
     >
+      <template #header="{ titleId, titleClass }">
+        <div class="custom-drawer-header">
+          <h4 :id="titleId" :class="titleClass">
+            {{ "【" + checkedRole.name + "】权限分配" }}
+          </h4>
+          <el-button type="primary" link @click="handleMenuDialogClose">
+            <i-ep-close />
+          </el-button>
+        </div>
+      </template>
+
       <el-scrollbar v-loading="loading" max-height="600px">
         <el-tree
           ref="menuRef"
@@ -168,14 +188,14 @@
       </el-scrollbar>
 
       <template #footer>
-        <div class="dialog-footer">
+        <div class="drawer-footer">
           <el-button type="primary" @click="handleRoleMenuSubmit"
             >确 定</el-button
           >
-          <el-button @click="menuDialogVisible = false">取 消</el-button>
+          <el-button @click="handleMenuDialogClose">取 消</el-button>
         </div>
       </template>
-    </el-dialog>
+    </el-drawer>
   </div>
 </template>
 
@@ -269,6 +289,32 @@ function openDialog(code?: string) {
   }
 }
 
+/** 关闭角色表单侧边栏 */
+function handleDialogClose() {
+  ElMessageBox.confirm("确认关闭？未保存的数据将会丢失", "提示", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      closeDialog();
+    })
+    .catch(() => {});
+}
+
+/** 关闭菜单分配侧边栏 */
+function handleMenuDialogClose() {
+  ElMessageBox.confirm("确认关闭？未保存的数据将会丢失", "提示", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      menuDialogVisible.value = false;
+    })
+    .catch(() => {});
+}
+
 /** 角色保存提交 */
 function handleSubmit() {
   roleFormRef.value.validate((valid: any) => {
@@ -279,6 +325,7 @@ function handleSubmit() {
         RoleAPI.updateRole(code, formData)
           .then(() => {
             ElMessage.success("修改成功");
+            dialog.visible = false; // 添加此行
             closeDialog();
             resetQuery();
           })
@@ -287,6 +334,7 @@ function handleSubmit() {
         RoleAPI.createRole(formData)
           .then(() => {
             ElMessage.success("新增成功");
+            dialog.visible = false; // 添加此行
             closeDialog();
             resetQuery();
           })
@@ -365,7 +413,7 @@ function handleRoleMenuSubmit() {
     RoleAPI.saveFuncToRole(code, checkedMenuCodes)
       .then(() => {
         ElMessage.success("分配权限成功");
-        menuDialogVisible.value = false;
+        menuDialogVisible.value = false; // 确保此行存在
         resetQuery();
       })
       .finally(() => {
