@@ -34,7 +34,6 @@
         v-loading="loading"
         highlight-current-row
         :data="dictList"
-        border
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" align="center" />
@@ -46,14 +45,14 @@
             <el-tag v-else type="info">停用</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="备注" prop="remark" align="center" />
-        <el-table-column fixed="right" label="操作" align="center" width="220">
+        <el-table-column label="备注" prop="remark" />
+        <el-table-column label="操作" width="220">
           <template #default="scope">
             <el-button
               type="primary"
               link
               size="small"
-              @click.stop="openDictDialog(scope.row)"
+              @click.stop="handleOpenDictData(scope.row)"
               ><i-ep-Collection />字典项</el-button
             >
             <el-button
@@ -156,6 +155,8 @@ import {
   DictResponse,
   DictFormRequest,
 } from "@/api/dict/model";
+
+import router from "@/router";
 
 const queryFormRef = ref(ElForm);
 const dataFormRef = ref(ElForm);
@@ -297,6 +298,14 @@ function openDictDialog(row: DictResponse) {
 /**  关闭字典数据弹窗 */
 function closeDictDialog() {
   dictDataDialog.visible = false;
+}
+
+// 打开字典项
+function handleOpenDictData(row: DictResponse) {
+  router.push({
+    path: "/system/dictItem",
+    query: { dictCode: row.code, title: "【" + row.name + "】字典数据" },
+  });
 }
 
 onMounted(() => {

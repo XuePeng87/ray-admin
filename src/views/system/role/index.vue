@@ -27,13 +27,7 @@
         >
       </template>
 
-      <el-table
-        ref="dataTableRef"
-        v-loading="loading"
-        :data="roleList"
-        highlight-current-row
-        border
-      >
+      <el-table ref="dataTableRef" v-loading="loading" :data="roleList">
         <el-table-column label="角色名称" prop="name" min-width="100" />
         <el-table-column label="角色描述" prop="remark" width="200" />
         <el-table-column label="状态" align="center" width="100">
@@ -50,7 +44,7 @@
           prop="sequence"
         />
 
-        <el-table-column fixed="right" label="操作" width="220">
+        <el-table-column label="操作" width="220">
           <template #default="scope">
             <el-button
               type="primary"
@@ -175,7 +169,7 @@
       <el-scrollbar v-loading="loading" max-height="600px">
         <div
           class="tree-operations"
-          style=" padding: 0 10px;margin-bottom: 10px"
+          style="padding: 0 10px; margin-bottom: 10px"
         >
           <div
             style="

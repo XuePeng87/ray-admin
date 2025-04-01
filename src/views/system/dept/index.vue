@@ -48,7 +48,7 @@
 
         <el-table-column prop="sequence" label="排序" width="100" />
 
-        <el-table-column label="操作" fixed="right" align="left" width="200">
+        <el-table-column label="操作" width="200">
           <template #default="scope">
             <el-button
               type="primary"

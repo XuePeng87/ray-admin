@@ -91,7 +91,7 @@
           prop="sequence"
         />
 
-        <el-table-column fixed="right" align="center" label="操作" width="220">
+        <el-table-column label="操作" width="220">
           <template #default="scope">
             <el-button
               v-if="scope.row.type == 0 || scope.row.type == 1"
