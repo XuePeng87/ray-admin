@@ -181,7 +181,7 @@
         </el-form-item>
 
         <el-form-item
-          v-if="formData.type == 0 || formData.type == 1"
+          v-if="formData.type === 0 || formData.type === 1"
           label="路由路径"
           prop="path"
         >
@@ -195,7 +195,7 @@
 
         <!-- 组件页面完整路径 -->
         <el-form-item
-          v-if="formData.type == 1"
+          v-if="formData.type === 1"
           label="页面路径"
           prop="component"
         >
@@ -210,7 +210,7 @@
         </el-form-item>
 
         <el-form-item
-          v-if="formData.type === 2"
+          v-if="formData.type == 1 || formData.type === 2"
           prop="visible"
           label="显示状态"
         >
@@ -220,10 +220,7 @@
           </el-radio-group>
         </el-form-item>
 
-        <el-form-item
-          v-if="formData.type === 1 || formData.type === 2"
-          label="是否始终显示"
-        >
+        <el-form-item v-if="formData.type === 0" label="是否始终显示">
           <template #label>
             <div>
               是否始终显示

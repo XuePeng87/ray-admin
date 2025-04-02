@@ -1,5 +1,3 @@
-<!--字典类型-->
-
 <template>
   <div class="app-container">
     <div class="search-container">
@@ -84,13 +82,25 @@
       />
     </el-card>
 
-    <el-dialog
+    <el-drawer
       v-model="dialog.visible"
       :title="dialog.title"
-      width="500px"
-      @close="closeDialog"
-      :close-on-press-escape="false"
+      :size="dialog.width"
+      :close-on-click-modal="false"
+      :close-on-press-escape="true"
+      direction="rtl"
+      class="custom-drawer"
+      :before-close="handleClose"
+      :show-close="false"
     >
+      <template #header="{ titleId, titleClass }">
+        <div class="custom-drawer-header">
+          <h4 :id="titleId" :class="titleClass">{{ dialog.title }}</h4>
+          <el-button type="primary" link @click="handleClose">
+            <i-ep-close />
+          </el-button>
+        </div>
+      </template>
       <el-form
         ref="dataFormRef"
         :model="formData"
@@ -119,26 +129,12 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <div class="dialog-footer">
+        <div class="drawer-footer">
           <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="closeDialog">取 消</el-button>
+          <el-button @click="handleClose">取 消</el-button>
         </div>
       </template>
-    </el-dialog>
-
-    <!--字典数据弹窗-->
-    <el-dialog
-      v-model="dictDataDialog.visible"
-      :title="dictDataDialog.title"
-      width="1000px"
-      @close="closeDictDialog"
-      :close-on-press-escape="false"
-    >
-      <dict-item
-        v-model:dictName="selectedDict.name"
-        v-model:dictValue="selectedDict.value"
-      />
-    </el-dialog>
+    </el-drawer>
   </div>
 </template>
 
@@ -177,6 +173,7 @@ const dictList = ref<DictResponse[]>();
 const dialog = reactive({
   title: "",
   visible: false,
+  width: 500,
 });
 
 const formData = reactive<DictFormRequest>({
@@ -222,6 +219,20 @@ function openDialog(code?: string) {
   }
 }
 
+/** 关闭侧边栏 */
+function handleClose() {
+  ElMessageBox.confirm("确认关闭？未保存的数据将会丢失", "提示", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      dialog.visible = false;
+      resetForm();
+    })
+    .catch(() => {});
+}
+
 function handleSubmit() {
   dataFormRef.value.validate((isValid: boolean) => {
     if (isValid) {
@@ -231,7 +242,8 @@ function handleSubmit() {
         DictAPI.updateDict(dictCode, formData)
           .then(() => {
             ElMessage.success("修改成功");
-            closeDialog();
+            dialog.visible = false;
+            resetForm();
             handleQuery();
           })
           .finally(() => (loading.value = false));
@@ -239,18 +251,14 @@ function handleSubmit() {
         DictAPI.createDict(formData)
           .then(() => {
             ElMessage.success("创建成功");
-            closeDialog();
+            dialog.visible = false;
+            resetForm();
             handleQuery();
           })
           .finally(() => (loading.value = false));
       }
     }
   });
-}
-
-function closeDialog() {
-  dialog.visible = false;
-  resetForm();
 }
 
 function resetForm() {
@@ -279,32 +287,11 @@ function handleDelete(dictCode?: string) {
   });
 }
 
-const dictDataDialog = reactive({
-  title: "",
-  visible: false,
-});
-
-const selectedDict = reactive({ name: "", value: "" }); // 当前选中的字典类型
-
-/** 打开字典数据弹窗 */
-function openDictDialog(row: DictResponse) {
-  dictDataDialog.visible = true;
-  dictDataDialog.title = "【" + row.name + "】字典数据";
-
-  selectedDict.name = row.name;
-  selectedDict.value = row.value;
-}
-
-/**  关闭字典数据弹窗 */
-function closeDictDialog() {
-  dictDataDialog.visible = false;
-}
-
 // 打开字典项
 function handleOpenDictData(row: DictResponse) {
   router.push({
     path: "/system/dictItem",
-    query: { dictCode: row.code, title: "【" + row.name + "】字典数据" },
+    query: { dictValue: row.value, dictName: row.name },
   });
 }
 
