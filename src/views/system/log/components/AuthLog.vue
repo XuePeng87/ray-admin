@@ -1,5 +1,5 @@
 <template>
-  <div class="auth-log-container">
+  <div class="app-container">
     <div class="search-container">
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
         <el-form-item prop="type" label="日志类型" class="search-form-inline">
@@ -95,8 +95,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
-import { ElForm } from "element-plus";
 import { AuthLogAPI } from "@/api/log";
 import {
   SysAuthLogType,
@@ -105,7 +103,7 @@ import {
 } from "@/api/log/model";
 
 defineOptions({
-  name: "AuthLogComponent",
+  name: "AuthLog",
   inheritAttrs: false,
 });
 
@@ -119,6 +117,11 @@ const currentLog = reactive<AuthLogResponse>({});
 const queryParams = reactive<AuthLogQueryRequest>({
   offset: 1,
   limit: 10,
+});
+
+const detailDialog = reactive({
+  visible: false,
+  title: "登录日志详情",
 });
 
 /** 查询日志列表 */
@@ -160,21 +163,8 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scope>
 .search-form-inline .el-select {
   --el-select-width: 200px;
-}
-
-.search-container {
-  padding: 18px 0 0 10px;
-  margin-bottom: 10px;
-  background-color: var(--el-bg-color-overlay);
-  border: 1px solid var(--el-border-color-light);
-  border-radius: 4px;
-  box-shadow: var(--el-box-shadow-light);
-}
-
-.table-container {
-  margin-top: 10px;
 }
 </style>

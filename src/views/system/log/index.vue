@@ -35,22 +35,4 @@ const activeTab = ref("auth");
 .tab-container {
   margin-bottom: 20px;
 }
-
-.tab-container :deep(.el-tabs__content) {
-  padding: 0;
-}
-
-/* 覆盖全局样式 */
-:deep(.search-container) {
-  padding: 18px 0 0 10px;
-  margin-bottom: 10px;
-  background-color: var(--el-bg-color-overlay);
-  border: 1px solid var(--el-border-color-light);
-  border-radius: 4px;
-  box-shadow: var(--el-box-shadow-light);
-}
-
-:deep(.table-container) {
-  margin-top: 10px;
-}
 </style>

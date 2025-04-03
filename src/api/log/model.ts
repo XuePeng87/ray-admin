@@ -33,10 +33,10 @@ export interface AuthLogResponse {
 // 系统日志分页列表对象
 export type AuthLogPageResponse = PageResult<AuthLogResponse[]>;
 
-// 操作日志类型枚举
+// 系统日志类型枚举
 export enum SysOperateLogType {
-  OPERATION = 1, // 操作日志
-  SYSTEM = 2, // 系统日志
+  ACCESS = 1, // 操作
+  ERROR = 2, // 错误
 }
 
 // 操作日志查询请求对象
@@ -79,3 +79,11 @@ export interface OperateLogResponse {
 
 // 操作日志分页列表对象
 export type OperateLogPageResponse = PageResult<OperateLogResponse[]>;
+
+// 操作日志详情响应对象
+export interface OperateLogDetailResponse {
+  param?: string; // 请求路径参数
+  args?: string; // 请求方法参数
+  result?: string; // 返回值
+  error?: string; // 错误信息
+}

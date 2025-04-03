@@ -1,5 +1,5 @@
 <template>
-  <div class="operate-log-container">
+  <div class="app-container">
     <div class="search-container">
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
         <el-form-item prop="type" label="日志类型" class="search-form-inline">
@@ -8,11 +8,8 @@
             placeholder="请选择日志类型"
             clearable
           >
-            <el-option
-              :label="'操作日志'"
-              :value="SysOperateLogType.OPERATION"
-            />
-            <el-option :label="'系统日志'" :value="SysOperateLogType.SYSTEM" />
+            <el-option :label="'登录日志'" :value="SysOperateLogType.ACCESS" />
+            <el-option :label="'登出日志'" :value="SysOperateLogType.ERROR" />
           </el-select>
         </el-form-item>
         <el-form-item prop="module" label="模块名称">
@@ -63,14 +60,14 @@
         <el-table-column label="日志类型" align="center" width="100">
           <template #default="scope">
             <el-tag
-              v-if="scope.row.type === SysOperateLogType.OPERATION"
+              v-if="scope.row.type === SysOperateLogType.ACCESS"
               type="success"
               >操作日志</el-tag
             >
             <el-tag
-              v-else-if="scope.row.type === SysOperateLogType.SYSTEM"
+              v-else-if="scope.row.type === SysOperateLogType.ERROR"
               type="info"
-              >系统日志</el-tag
+              >错误日志</el-tag
             >
             <el-tag v-else type="warning">未知类型</el-tag>
           </template>
@@ -88,7 +85,7 @@
           sortable
         />
         <el-table-column label="操作时间" prop="createTime" min-width="160" />
-        <el-table-column label="操作" width="100" align="center">
+        <el-table-column label="操作" min-width="80" align="center">
           <template #default="scope">
             <el-button
               type="primary"
@@ -118,85 +115,44 @@
       size="500px"
       direction="rtl"
     >
-      <el-descriptions :column="1" border>
-        <el-descriptions-item label="日志类型">
-          <el-tag
-            v-if="currentLog.type === SysOperateLogType.OPERATION"
-            type="success"
-            >操作日志</el-tag
-          >
-          <el-tag
-            v-else-if="currentLog.type === SysOperateLogType.SYSTEM"
-            type="info"
-            >系统日志</el-tag
-          >
-          <el-tag v-else type="warning">未知类型</el-tag>
-        </el-descriptions-item>
-        <el-descriptions-item label="模块名称">{{
-          currentLog.module
-        }}</el-descriptions-item>
-        <el-descriptions-item label="功能名称">{{
-          currentLog.func
-        }}</el-descriptions-item>
-        <el-descriptions-item label="操作">{{
-          currentLog.action
-        }}</el-descriptions-item>
-        <el-descriptions-item label="操作描述">{{
-          currentLog.remark
-        }}</el-descriptions-item>
-        <el-descriptions-item label="IP地址">{{
-          currentLog.ip
-        }}</el-descriptions-item>
-        <el-descriptions-item label="请求地址">{{
-          currentLog.url
-        }}</el-descriptions-item>
-        <el-descriptions-item label="请求URI">{{
-          currentLog.uri
-        }}</el-descriptions-item>
-        <el-descriptions-item label="请求方式">{{
-          currentLog.method
-        }}</el-descriptions-item>
-        <el-descriptions-item label="类名">{{
-          currentLog.className
-        }}</el-descriptions-item>
-        <el-descriptions-item label="方法名">{{
-          currentLog.methodName
-        }}</el-descriptions-item>
-        <el-descriptions-item label="浏览器">
-          {{ currentLog.browser }} {{ currentLog.browserVersion }}
-        </el-descriptions-item>
-        <el-descriptions-item label="操作系统">
-          {{ currentLog.os }} {{ currentLog.osVersion }}
-        </el-descriptions-item>
-        <el-descriptions-item label="浏览器引擎">
-          {{ currentLog.engine }} {{ currentLog.engineVersion }}
-        </el-descriptions-item>
-        <el-descriptions-item label="耗时(ms)">{{
-          currentLog.exeTime
-        }}</el-descriptions-item>
-        <el-descriptions-item label="操作人">{{
-          currentLog.createUser
-        }}</el-descriptions-item>
-        <el-descriptions-item label="操作时间">{{
-          currentLog.createTime
-        }}</el-descriptions-item>
-      </el-descriptions>
+      <div v-if="detailData && Object.keys(detailData).length > 0">
+        <el-collapse v-model="activeCollapse">
+          <el-collapse-item title="请求路径参数" name="param">
+            <pre v-if="detailData.param">{{ detailData.param }}</pre>
+            <el-empty v-else description="暂无数据" />
+          </el-collapse-item>
+          <el-collapse-item title="请求方法参数" name="args">
+            <pre v-if="detailData.args">{{ detailData.args }}</pre>
+            <el-empty v-else description="暂无数据" />
+          </el-collapse-item>
+          <el-collapse-item title="返回值" name="result">
+            <pre v-if="detailData.result">{{ detailData.result }}</pre>
+            <el-empty v-else description="暂无数据" />
+          </el-collapse-item>
+          <el-collapse-item title="错误信息" name="error">
+            <pre v-if="detailData.error">{{ detailData.error }}</pre>
+            <el-empty v-else description="暂无数据" />
+          </el-collapse-item>
+        </el-collapse>
+      </div>
+      <el-empty v-else description="暂无详情数据" />
     </el-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { ElForm } from "element-plus";
 import { OperationLogAPI } from "@/api/log";
 import {
-  SysOperateLogType,
   OperateLogQueryRequest,
   OperateLogResponse,
+  OperateLogDetailResponse,
+  SysOperateLogType,
 } from "@/api/log/model";
 
 defineOptions({
-  name: "OperateLogComponent",
+  name: "OperateLog",
   inheritAttrs: false,
 });
 
@@ -206,6 +162,8 @@ const total = ref(0);
 const dateRange = ref<[string, string]>();
 const logList = ref<OperateLogResponse[]>([]);
 const currentLog = reactive<OperateLogResponse>({});
+const detailData = ref<OperateLogDetailResponse>({});
+const activeCollapse = ref(["param"]); // 默认打开第一项
 
 const queryParams = reactive<OperateLogQueryRequest>({
   offset: 1,
@@ -245,6 +203,7 @@ function resetQuery() {
   queryFormRef.value.resetFields();
   dateRange.value = undefined;
   queryParams.offset = 1;
+  queryParams.type = undefined;
   queryParams.beginCreateTime = undefined;
   queryParams.endCreateTime = undefined;
   handleQuery();
@@ -256,7 +215,8 @@ function handleDetail(row: OperateLogResponse) {
 
   OperationLogAPI.getOperateLogDetail(row.id!)
     .then((data) => {
-      Object.assign(currentLog, data);
+      Object.assign(currentLog, row);
+      detailData.value = data || {};
       detailDrawer.visible = true;
     })
     .finally(() => {
@@ -275,16 +235,18 @@ onMounted(() => {
   --el-select-width: 200px;
 }
 
-.search-container {
-  padding: 18px 0 0 10px;
-  margin-bottom: 10px;
-  background-color: var(--el-bg-color-overlay);
-  border: 1px solid var(--el-border-color-light);
-  border-radius: 4px;
-  box-shadow: var(--el-box-shadow-light);
+:deep(.el-collapse-item__header) {
+  font-size: 16px;
+  font-weight: 500;
 }
 
-.table-container {
-  margin-top: 10px;
+pre {
+  max-height: 300px;
+  padding: 10px;
+  overflow: auto;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  background-color: #f8f8f8;
+  border-radius: 4px;
 }
 </style>

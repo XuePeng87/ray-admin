@@ -4,6 +4,7 @@ import {
   AuthLogResponse,
   OperateLogQueryRequest,
   OperateLogResponse,
+  OperateLogDetailResponse,
 } from "./model";
 
 class AuthLogAPI {
@@ -29,8 +30,8 @@ class OperationLogAPI {
 
   // 查询系统操作日志的详情
   static getOperateLogDetail(logId: number) {
-    return request<any, OperateLogResponse>({
-      url: "/v1/operate-log-detail/v1/" + logId,
+    return request<any, OperateLogDetailResponse>({
+      url: "/v1/operate-log-details/v1/" + logId,
       method: "get",
     });
   }
