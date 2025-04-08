@@ -15,6 +15,7 @@ export interface AuthLogQueryRequest extends PageQuery {
 // 系统日志响应对象
 export interface AuthLogResponse {
   type?: SysAuthLogType;
+  phoneNumber?: string;
   loginIp?: string;
   browser?: string;
   browserVersion?: string;
@@ -53,6 +54,7 @@ export interface OperateLogQueryRequest extends PageQuery {
 export interface OperateLogResponse {
   id?: number;
   type?: SysOperateLogType;
+  phoneNumber?: string;
   module?: string;
   func?: string;
   remark?: string;

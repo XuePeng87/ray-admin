@@ -72,6 +72,12 @@
             <el-tag v-else type="warning">未知类型</el-tag>
           </template>
         </el-table-column>
+        <el-table-column
+          label="手机号"
+          prop="phoneNumber"
+          min-width="120"
+          align="center"
+        />
         <el-table-column label="模块名称" prop="module" min-width="120" />
         <el-table-column label="功能名称" prop="func" min-width="120" />
         <el-table-column label="操作" prop="action" min-width="120" />
@@ -116,7 +122,7 @@
       direction="rtl"
     >
       <div v-if="detailData && Object.keys(detailData).length > 0">
-        <el-collapse v-model="activeCollapse">
+        <el-collapse v-model="activeCollapse" accordion>
           <el-collapse-item title="请求路径参数" name="param">
             <pre v-if="detailData.param">{{ detailData.param }}</pre>
             <el-empty v-else description="暂无数据" />
@@ -163,7 +169,7 @@ const dateRange = ref<[string, string]>();
 const logList = ref<OperateLogResponse[]>([]);
 const currentLog = reactive<OperateLogResponse>({});
 const detailData = ref<OperateLogDetailResponse>({});
-const activeCollapse = ref(["param"]); // 默认打开第一项
+const activeCollapse = ref("param"); // 默认打开第一项
 
 const queryParams = reactive<OperateLogQueryRequest>({
   offset: 1,

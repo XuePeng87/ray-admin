@@ -56,6 +56,12 @@
             <el-tag v-else type="warning">未知类型</el-tag>
           </template>
         </el-table-column>
+        <el-table-column
+          label="手机号"
+          prop="phoneNumber"
+          min-width="120"
+          align="center"
+        />
         <el-table-column label="登录IP" prop="loginIp" min-width="120" />
         <el-table-column label="浏览器" prop="browser" min-width="120" />
         <el-table-column
