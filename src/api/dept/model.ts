@@ -2,6 +2,7 @@
  * 系统部门查询请求对象
  */
 export interface DeptQueryRequest {
+  tenantCode?: string;
   name?: string;
 }
 
@@ -9,6 +10,7 @@ export interface DeptQueryRequest {
  * 系统部门响应对象
  */
 export interface DeptResponse {
+  tenantCode: string;
   parentCode: string;
   code: string;
   name: string;
@@ -22,6 +24,7 @@ export interface DeptResponse {
  * 系统部门创建、修改请求对象
  */
 export interface DeptFormRequest {
+  tenantCode?: string;
   parentCode?: string;
   code?: string;
   name?: string;

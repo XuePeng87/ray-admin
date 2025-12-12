@@ -2,7 +2,22 @@
   <div class="app-container">
     <div class="search-container">
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-        <el-form-item label="关键字" prop="name">
+        <el-form-item label="租户" prop="tenantCode" v-if="admin">
+          <el-select
+            v-model="queryParams.tenantCode"
+            placeholder="请选择租户"
+            clearable
+            style="width: 180px"
+          >
+            <el-option
+              v-for="item in tenantList"
+              :key="item.code"
+              :label="item.name"
+              :value="item.code"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="部门名称" prop="name">
           <el-input
             v-model="queryParams.name"
             placeholder="请输入部门名称"
@@ -106,6 +121,20 @@
         :rules="rules"
         label-width="80px"
       >
+        <el-form-item label="租户" prop="tenantCode" v-if="admin">
+          <el-select
+            v-model="formData.tenantCode"
+            placeholder="请选择租户"
+            clearable
+          >
+            <el-option
+              v-for="item in tenantList"
+              :key="item.code"
+              :label="item.name"
+              :value="item.code"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="上级部门" prop="parentCode">
           <el-tree-select
             v-model="formData.parentCode"
@@ -152,6 +181,8 @@ defineOptions({
   inheritAttrs: false,
 });
 
+import { useUserStore } from "@/store";
+import TenantAPI from "@/api/tenant";
 import DeptAPI from "@/api/dept";
 import {
   DeptResponse,
@@ -159,6 +190,7 @@ import {
   DeptQueryRequest,
 } from "@/api/dept/model";
 
+const { admin } = useUserStore().user;
 const queryFormRef = ref(ElForm);
 const deptFormRef = ref(ElForm);
 
@@ -171,7 +203,8 @@ const dialog = reactive({
 });
 
 const queryParams = reactive<DeptQueryRequest>({});
-const deptList = ref<DeptResponse[]>();
+const tenantList = ref<OptionType[]>();
+const deptList = ref<OptionType[]>();
 const deptOptions = ref<OptionType[]>();
 const formData = reactive<DeptFormRequest>({
   status: 1,
@@ -204,6 +237,15 @@ function resetQuery() {
 /** 行复选框选中记录选中ID集合 */
 function handleSelectionChange(selection: any) {
   codes.value = selection.map((item: any) => item.id);
+}
+
+/** 查询租户下拉数据 */
+async function loadTenantOptions() {
+  loading.value = true;
+  TenantAPI.getTenantList().then((result) => {
+    tenantList.value = result;
+    loading.value = false;
+  });
 }
 
 /** 获取部门下拉数据  */
@@ -321,6 +363,9 @@ function resetForm() {
 }
 
 onMounted(() => {
+  if (admin) {
+    loadTenantOptions();
+  }
   handleQuery();
 });
 </script>

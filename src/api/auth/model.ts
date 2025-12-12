@@ -20,6 +20,8 @@ export interface CurrnetUser {
   name?: string;
   email?: string;
   avatar?: string;
+  admin: boolean;
+  departmentCode?: string;
   roles: CurrentUserRole[];
   funcs: CurrentUserFunc[];
   permissions: string[];

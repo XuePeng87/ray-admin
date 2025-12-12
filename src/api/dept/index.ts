@@ -5,7 +5,7 @@ class DeptAPI {
   // 查询系统部门树
   static getDeptTree(queryParams?: DeptQueryRequest) {
     return request<any, DeptResponse[]>({
-      url: "/v1/depts/v1",
+      url: "/v1/depts/v1/tree",
       method: "get",
       params: queryParams,
     });

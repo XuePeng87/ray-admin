@@ -9,10 +9,9 @@ export function hasAuth(
   value: string | string[],
   type: "button" | "role" = "button"
 ) {
-  const { roles, permissions } = useUserStore().user;
-  const roleNames = roles.map((r) => r.name);
-  //「超级管理员」拥有所有的按钮权限
-  if (roleNames.includes("ROLE_SUPER_ADMIN")) {
+  const { admin, permissions } = useUserStore().user;
+  //是否是超级管理员，超级管理员拥有全部的权限
+  if (admin) {
     return true;
   } else {
     return typeof value === "string"

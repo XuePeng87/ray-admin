@@ -5,7 +5,7 @@ class MenuAPI {
   // 查询系统功能树
   static getFuncTree(queryParams?: FuncQueryRequest) {
     return request<any, FuncResponse[]>({
-      url: "/v1/funcs/v1",
+      url: "/v1/funcs/v1/tree",
       method: "get",
       params: queryParams,
     });
